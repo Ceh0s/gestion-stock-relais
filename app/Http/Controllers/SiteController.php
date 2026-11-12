@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Emplacement;
 use App\Models\Site;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -11,9 +12,23 @@ class SiteController extends Controller
 {
     public function index(): View
     {
-        $sites = Site::withCount('emplacements')->orderBy('nom')->get();
+        $sites = Site::withCount('emplacements')->with('emplacements:id,site_id')->orderBy('nom')->get();
+        // Calculé une seule fois pour toute la liste (au lieu d'une requête par site).
+        $emplacementsUtilises = Emplacement::idsUtilises();
 
-        return view('sites.index', compact('sites'));
+        return view('sites.index', compact('sites', 'emplacementsUtilises'));
+    }
+
+    public function destroy(Site $site): RedirectResponse
+    {
+        if ($site->estUtilise()) {
+            return back()->withErrors(['site' => "Le site « {$site->nom} » a déjà servi (matériels ou historique) : il ne peut pas être supprimé. Désactivez-le à la place (page Modifier, case « Site actif »)."]);
+        }
+
+        // Ses emplacements, jamais utilisés, sont supprimés avec lui (cascadeOnDelete).
+        $site->delete();
+
+        return redirect()->route('sites.index')->with('status', "Site « {$site->nom} » supprimé.");
     }
 
     public function create(): View

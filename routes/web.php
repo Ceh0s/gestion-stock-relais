@@ -56,6 +56,11 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('role:administrateur')->group(function () {
         Route::resource('users', UserController::class)->except(['show', 'destroy']);
+
+        // Suppression définitive : uniquement ce qui n'a jamais servi (sinon on désactive).
+        Route::delete('/sites/{site}', [SiteController::class, 'destroy'])->name('sites.destroy');
+        Route::delete('/emplacements/{emplacement}', [EmplacementController::class, 'destroy'])->name('emplacements.destroy');
+        Route::delete('/materiels/{materiel}', [MaterielController::class, 'destroy'])->name('materiels.destroy');
     });
 });
 

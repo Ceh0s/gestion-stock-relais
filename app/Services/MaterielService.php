@@ -8,6 +8,7 @@ use App\Models\Mouvement;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 
 class MaterielService
@@ -195,6 +196,32 @@ class MaterielService
         }
 
         return $verrouille;
+    }
+
+    /**
+     * Supprime un matériel saisi par erreur. Refusé dès qu'il a un historique autre que sa
+     * création : on le passe alors au statut Réformé. Sa ligne "Création" part avec lui
+     * (cascadeOnDelete) ; une trace reste dans le journal technique de Laravel.
+     */
+    public function supprimer(Materiel $materiel, User $acteur): void
+    {
+        DB::transaction(function () use ($materiel, $acteur) {
+            $materiel = $this->verrouiller($materiel, null);
+
+            if (! $materiel->estSupprimable()) {
+                throw ValidationException::withMessages([
+                    'materiel' => 'Ce matériel a déjà un historique (déplacement, attribution, modification…) : il ne peut pas être supprimé. Passez-le au statut Réformé à la place.',
+                ]);
+            }
+
+            $materiel->delete();
+
+            Log::info('Matériel supprimé', [
+                'reference' => $materiel->reference,
+                'numero_serie' => $materiel->numero_serie,
+                'par' => $acteur->email,
+            ]);
+        });
     }
 
     public function deplacer(Materiel $materiel, int $nouvelEmplacementId, ?string $motif, ?string $commentaire, User $acteur, ?int $versionAttendue = null): Materiel

@@ -13,8 +13,21 @@ class EmplacementController extends Controller
     public function index(): View
     {
         $emplacements = Emplacement::with('site')->orderBy('site_id')->orderBy('nom')->get();
+        // Calculé une seule fois pour toute la liste (au lieu d'une requête par emplacement).
+        $emplacementsUtilises = Emplacement::idsUtilises();
 
-        return view('emplacements.index', compact('emplacements'));
+        return view('emplacements.index', compact('emplacements', 'emplacementsUtilises'));
+    }
+
+    public function destroy(Emplacement $emplacement): RedirectResponse
+    {
+        if ($emplacement->estUtilise()) {
+            return back()->withErrors(['emplacement' => "L'emplacement « {$emplacement->libelle()} » a déjà servi (matériels ou historique) : il ne peut pas être supprimé. Désactivez-le à la place (page Modifier, case « Emplacement actif »)."]);
+        }
+
+        $emplacement->delete();
+
+        return redirect()->route('emplacements.index')->with('status', "Emplacement « {$emplacement->libelle()} » supprimé.");
     }
 
     public function create(): View

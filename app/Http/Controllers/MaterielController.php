@@ -193,4 +193,15 @@ class MaterielController extends Controller
 
         return redirect()->route('materiels.show', $materiel)->with('status', 'Matériel envoyé en réparation.');
     }
+
+    public function destroy(Request $request, Materiel $materiel): RedirectResponse
+    {
+        try {
+            $this->materiels->supprimer($materiel, $request->user());
+        } catch (ValidationException $e) {
+            return back()->withErrors($e->errors());
+        }
+
+        return redirect()->route('materiels.index')->with('status', "Matériel {$materiel->reference} supprimé.");
+    }
 }

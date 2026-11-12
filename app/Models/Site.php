@@ -23,4 +23,12 @@ class Site extends Model
     {
         return $this->hasMany(Emplacement::class);
     }
+
+    /** Un site a servi si l'un de ses emplacements a servi (voir Emplacement::idsUtilises()). */
+    public function estUtilise(): bool
+    {
+        $ids = $this->emplacements()->pluck('id')->all();
+
+        return $ids !== [] && Emplacement::idsUtilises($ids)->isNotEmpty();
+    }
 }

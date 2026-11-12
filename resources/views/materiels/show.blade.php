@@ -117,6 +117,20 @@
                 </div>
             @endif
 
+            @if (Auth::user()->estAdministrateur() && $materiel->estSupprimable())
+                <div class="bg-white shadow-sm rounded-lg p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                    <p class="text-sm text-gray-600">
+                        Matériel saisi par erreur ? Il n'a encore aucun historique (hormis sa création) et peut donc être supprimé définitivement.
+                    </p>
+                    <form method="POST" action="{{ route('materiels.destroy', $materiel) }}"
+                          onsubmit="return confirm('Supprimer définitivement le matériel ' + {{ Js::from($materiel->reference) }} + ' ?')">
+                        @csrf
+                        @method('DELETE')
+                        <button class="inline-flex items-center px-3 py-1.5 bg-red-600 text-white text-sm font-medium rounded-md hover:bg-red-700 whitespace-nowrap">Supprimer</button>
+                    </form>
+                </div>
+            @endif
+
             <div class="bg-white shadow-sm rounded-lg p-6 overflow-x-auto">
                 <h3 class="font-semibold text-gray-800 mb-4">Historique des mouvements</h3>
                 <table class="min-w-full divide-y divide-gray-200 text-sm">

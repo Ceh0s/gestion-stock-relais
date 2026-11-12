@@ -77,4 +77,16 @@ class Materiel extends Model
         // L'id départage les mouvements enregistrés dans la même seconde (le plus récent d'abord).
         return $this->hasMany(Mouvement::class)->latest('created_at')->latest('id');
     }
+
+    /**
+     * Supprimable seulement s'il n'a jamais rien vécu d'autre que sa création (erreur de saisie) :
+     * sinon on effacerait de l'historique, que le cahier des charges impose de conserver.
+     */
+    public function estSupprimable(): bool
+    {
+        // whereNull : un déplacement sans motif saisi a motif = NULL, et en SQL "NULL != 'creation'" n'est pas vrai.
+        return ! Mouvement::where('materiel_id', $this->id)
+            ->where(fn ($requete) => $requete->whereNull('motif')->orWhere('motif', '!=', 'creation'))
+            ->exists();
+    }
 }
