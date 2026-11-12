@@ -69,7 +69,7 @@ class MaterielsImport implements ToCollection, WithHeadingRow
             return $erreurs;
         }
 
-        $reference = strtoupper(trim($row['reference']));
+        $reference = strtoupper(trim((string) $row['reference']));
         $numeroSerie = trim((string) ($row['numero_serie'] ?? '')) ?: null;
 
         if (! in_array($row['condition_stock'], Materiel::CONDITIONS, true)) {
@@ -78,6 +78,10 @@ class MaterielsImport implements ToCollection, WithHeadingRow
 
         if (! in_array($row['statut'], Materiel::STATUTS, true)) {
             $erreurs[] = "Ligne {$numeroLigne} : statut \"{$row['statut']}\" invalide.";
+        } elseif ($row['statut'] === 'attribue') {
+            // Le fichier ne précise pas à qui le matériel est attribué : l'attribution
+            // doit passer par l'action "Attribuer" de la fiche (qui l'enregistre dans l'historique).
+            $erreurs[] = "Ligne {$numeroLigne} : le statut \"attribue\" n'est pas accepté à l'import, car le fichier ne précise pas l'utilisateur. Importez le matériel avec un autre statut, puis attribuez-le depuis sa fiche.";
         }
 
         if (! Site::where('nom', $row['site'])->exists()) {
@@ -86,16 +90,24 @@ class MaterielsImport implements ToCollection, WithHeadingRow
             $erreurs[] = "Ligne {$numeroLigne} : emplacement \"{$row['emplacement']}\" introuvable pour le site \"{$row['site']}\".";
         }
 
-        if (Materiel::where('reference', $reference)->exists() || isset($referencesVues[$reference])) {
-            $erreurs[] = "Ligne {$numeroLigne} : référence \"{$reference}\" en doublon.";
+        // Cahier des charges (Algorithme.pdf §10.2 et §11) : une référence ou un numéro de série
+        // déjà présent dans la base, ou en double dans le fichier, rejette l'import.
+        if (isset($referencesVues[$reference])) {
+            $erreurs[] = "Ligne {$numeroLigne} : la référence \"{$reference}\" apparaît plusieurs fois dans le fichier (déjà vue ligne {$referencesVues[$reference]}).";
+        } elseif (Materiel::where('reference', $reference)->exists()) {
+            $erreurs[] = "Ligne {$numeroLigne} : la référence \"{$reference}\" existe déjà dans l'inventaire.";
+        } else {
+            $referencesVues[$reference] = $numeroLigne;
         }
-        $referencesVues[$reference] = true;
 
         if ($numeroSerie) {
-            if (Materiel::where('numero_serie', $numeroSerie)->exists() || isset($numerosSerieVus[$numeroSerie])) {
-                $erreurs[] = "Ligne {$numeroLigne} : numéro de série \"{$numeroSerie}\" en doublon.";
+            if (isset($numerosSerieVus[$numeroSerie])) {
+                $erreurs[] = "Ligne {$numeroLigne} : le numéro de série \"{$numeroSerie}\" apparaît plusieurs fois dans le fichier (déjà vu ligne {$numerosSerieVus[$numeroSerie]}).";
+            } elseif ($existant = Materiel::where('numero_serie', $numeroSerie)->first()) {
+                $erreurs[] = "Ligne {$numeroLigne} : le numéro de série \"{$numeroSerie}\" est déjà utilisé par le matériel \"{$existant->reference}\" de l'inventaire.";
+            } else {
+                $numerosSerieVus[$numeroSerie] = $numeroLigne;
             }
-            $numerosSerieVus[$numeroSerie] = true;
         }
 
         return $erreurs;

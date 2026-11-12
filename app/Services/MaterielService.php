@@ -29,7 +29,7 @@ class MaterielService
 
         $emplacement = Emplacement::where('id', $data['emplacement_id'])->where('actif', true)->first();
         if (! $emplacement) {
-            throw ValidationException::withMessages(['emplacement_id' => "L'emplacement selectionne n'existe pas ou est inactif."]);
+            throw ValidationException::withMessages(['emplacement_id' => "L'emplacement sélectionné n'existe pas ou est inactif."]);
         }
 
         if (($data['statut'] ?? 'disponible') === 'attribue' && empty($data['utilisateur_id'])) {
