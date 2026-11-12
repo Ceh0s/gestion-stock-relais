@@ -37,7 +37,8 @@ class MaterielsExport implements FromCollection, WithHeadings
             'statut' => $materiel->statut,
             'site' => $materiel->emplacement?->site?->nom,
             'emplacement' => $materiel->emplacement?->nom,
-            'utilisateur' => $materiel->utilisateur?->nomComplet(),
+            // Email du compte : identifiant unique, relu tel quel par l'import (colonne "utilisateur").
+            'utilisateur' => $materiel->utilisateur?->email,
             'date_acquisition' => $materiel->date_acquisition?->toDateString(),
             'date_fin_garantie' => $materiel->date_fin_garantie?->toDateString(),
             'commentaire' => $materiel->commentaire,

@@ -134,7 +134,7 @@ class RechercheTest extends TestCase
 
         $this->actingAs($gestionnaire)->get('/export/materiels?terme=HP');
 
-        Excel::assertDownloaded('materiels_'.now()->format('Y-m-d').'.xlsx', function (MaterielsExport $export) {
+        Excel::assertDownloaded('inventaire_'.now()->format('Y-m-d').'.xlsx', function (MaterielsExport $export) {
             return $export->collection()->pluck('reference')->all() === ['MON-000118'];
         });
     }

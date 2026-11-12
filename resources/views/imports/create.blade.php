@@ -26,9 +26,15 @@
             <div class="bg-white shadow-sm rounded-lg p-6">
                 <p class="text-sm text-gray-600 mb-4">
                     Le fichier doit contenir au minimum les colonnes : <code>reference, type_materiel, marque, modele, condition_stock, statut, site, emplacement</code>.
-                    Colonnes facultatives : <code>numero_serie, reference_constructeur, date_acquisition, date_fin_garantie, commentaire</code>.
+                    Colonnes facultatives : <code>numero_serie, reference_constructeur, utilisateur, date_acquisition, date_fin_garantie, commentaire</code>.
                     En cas d'erreur sur une seule ligne, l'import complet est rejeté (mode strict).
                 </p>
+                <ul class="text-sm text-gray-600 mb-4 list-disc list-inside space-y-1">
+                    <li><code>statut</code> et <code>condition_stock</code> acceptent la valeur technique (<code>a_verifier</code>) ou le libellé affiché (« À vérifier »).</li>
+                    <li><code>utilisateur</code> : email du compte, obligatoire pour un matériel au statut <code>attribue</code> et accepté uniquement dans ce cas.</li>
+                    <li>Dates au format JJ/MM/AAAA ou AAAA-MM-JJ (les cellules au format date d'Excel sont aussi acceptées).</li>
+                    <li>Un fichier obtenu avec « Exporter Excel » a déjà le bon format.</li>
+                </ul>
 
                 <form method="POST" action="{{ route('imports.store') }}" enctype="multipart/form-data" class="space-y-4">
                     @csrf
@@ -67,6 +73,36 @@
                     </tbody>
                 </table>
             </div>
+
+            @if (Auth::user()->estAdministrateur())
+                <div class="bg-white shadow-sm rounded-lg p-6 overflow-x-auto">
+                    <h3 class="font-semibold text-gray-800 mb-4">Derniers exports</h3>
+                    <table class="min-w-full divide-y divide-gray-200 text-sm">
+                        <thead>
+                            <tr class="text-left text-xs text-gray-500 uppercase">
+                                <th class="py-2 pr-4">Date</th>
+                                <th class="py-2 pr-4">Fichier</th>
+                                <th class="py-2 pr-4">Filtres</th>
+                                <th class="py-2 pr-4">Lignes</th>
+                                <th class="py-2 pr-4">Par</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            @forelse ($derniersExports as $export)
+                                <tr>
+                                    <td class="py-2 pr-4 whitespace-nowrap">{{ $export->created_at->format('d/m/Y H:i') }}</td>
+                                    <td class="py-2 pr-4">{{ $export->nom_fichier }}</td>
+                                    <td class="py-2 pr-4">{{ $export->resumeFiltres() }}</td>
+                                    <td class="py-2 pr-4">{{ $export->nombre_lignes }}</td>
+                                    <td class="py-2 pr-4">{{ $export->utilisateur?->nomComplet() ?? '—' }}</td>
+                                </tr>
+                            @empty
+                                <tr><td colspan="5" class="py-4 text-center text-gray-500">Aucun export.</td></tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            @endif
         </div>
     </div>
 </x-app-layout>
