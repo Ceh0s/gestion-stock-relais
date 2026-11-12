@@ -3,6 +3,7 @@
 namespace App\Exports;
 
 use App\Models\Materiel;
+use App\Services\MaterielService;
 use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
@@ -22,19 +23,10 @@ class MaterielsExport implements FromCollection, WithHeadings
 
     public function collection(): Collection
     {
-        $query = Materiel::query()->with(['emplacement.site', 'utilisateur']);
+        // Mêmes filtres que la liste des matériels : l'export contient exactement ce qui est affiché.
+        $query = app(MaterielService::class)->requeteRecherche($this->filtres);
 
-        if (! empty($this->filtres['site_id'])) {
-            $query->whereHas('emplacement', fn ($q) => $q->where('site_id', $this->filtres['site_id']));
-        }
-        if (! empty($this->filtres['statut'])) {
-            $query->where('statut', $this->filtres['statut']);
-        }
-        if (! empty($this->filtres['condition_stock'])) {
-            $query->where('condition_stock', $this->filtres['condition_stock']);
-        }
-
-        return $query->orderBy('reference')->get()->map(fn (Materiel $materiel) => [
+        return $query->get()->map(fn (Materiel $materiel) => [
             'reference' => $materiel->reference,
             'type_materiel' => $materiel->type_materiel,
             'marque' => $materiel->marque,

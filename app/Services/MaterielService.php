@@ -6,6 +6,7 @@ use App\Models\Emplacement;
 use App\Models\Materiel;
 use App\Models\Mouvement;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
@@ -228,25 +229,52 @@ class MaterielService
         });
     }
 
+    // Critères acceptés par la recherche (et repris tels quels par l'export).
+    public const CRITERES_RECHERCHE = [
+        'terme', 'type_materiel', 'site_id', 'emplacement_id', 'condition_stock', 'statut', 'utilisateur_id', 'tri',
+    ];
+
     public function rechercher(array $criteres)
+    {
+        return $this->requeteRecherche($criteres)->paginate(20)->withQueryString();
+    }
+
+    /**
+     * Construit la requête de recherche (cahier des charges §5, Algorithme §5).
+     * Partagée par la liste des matériels et par l'export Excel, pour qu'ils donnent le même résultat.
+     */
+    public function requeteRecherche(array $criteres): Builder
     {
         $query = Materiel::query()->with(['emplacement.site', 'utilisateur']);
 
-        if (! empty($criteres['terme'])) {
-            $terme = $criteres['terme'];
-            $query->where(function ($q) use ($terme) {
-                $q->where('reference', 'like', "%{$terme}%")
-                    ->orWhere('numero_serie', 'like', "%{$terme}%")
-                    ->orWhere('reference_constructeur', 'like', "%{$terme}%")
-                    ->orWhere('type_materiel', 'like', "%{$terme}%")
-                    ->orWhere('marque', 'like', "%{$terme}%")
-                    ->orWhere('modele', 'like', "%{$terme}%")
-                    ->orWhere('commentaire', 'like', "%{$terme}%");
+        // Recherche globale : chaque mot doit apparaître dans au moins un champ,
+        // pour que "Dell Latitude 5420" trouve marque = Dell et modèle = Latitude 5420.
+        $mots = preg_split('/\s+/', trim((string) ($criteres['terme'] ?? '')), -1, PREG_SPLIT_NO_EMPTY);
+        foreach ($mots as $mot) {
+            $motif = '%'.$mot.'%';
+            $query->where(function (Builder $q) use ($motif) {
+                $q->where('reference', 'like', $motif)
+                    ->orWhere('numero_serie', 'like', $motif)
+                    ->orWhere('reference_constructeur', 'like', $motif)
+                    ->orWhere('type_materiel', 'like', $motif)
+                    ->orWhere('marque', 'like', $motif)
+                    ->orWhere('modele', 'like', $motif)
+                    ->orWhere('commentaire', 'like', $motif)
+                    ->orWhereHas('emplacement', fn (Builder $e) => $e->where('nom', 'like', $motif))
+                    ->orWhereHas('utilisateur', fn (Builder $u) => $u->where('nom', 'like', $motif)->orWhere('prenom', 'like', $motif));
             });
         }
 
+        if (! empty($criteres['type_materiel'])) {
+            $query->where('type_materiel', $criteres['type_materiel']);
+        }
+
         if (! empty($criteres['site_id'])) {
-            $query->whereHas('emplacement', fn ($q) => $q->where('site_id', $criteres['site_id']));
+            $query->whereHas('emplacement', fn (Builder $q) => $q->where('site_id', $criteres['site_id']));
+        }
+
+        if (! empty($criteres['emplacement_id'])) {
+            $query->where('emplacement_id', $criteres['emplacement_id']);
         }
 
         if (! empty($criteres['condition_stock'])) {
@@ -257,6 +285,17 @@ class MaterielService
             $query->where('statut', $criteres['statut']);
         }
 
-        return $query->orderBy('reference')->paginate(20)->withQueryString();
+        if (! empty($criteres['utilisateur_id'])) {
+            $query->where('utilisateur_id', $criteres['utilisateur_id']);
+        }
+
+        // Tri par référence (par défaut) ou par date de modification, la plus récente d'abord.
+        if (($criteres['tri'] ?? null) === 'recent') {
+            $query->latest('updated_at')->orderBy('reference');
+        } else {
+            $query->orderBy('reference');
+        }
+
+        return $query;
     }
 }

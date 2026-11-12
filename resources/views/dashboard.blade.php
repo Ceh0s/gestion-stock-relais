@@ -8,6 +8,15 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
+            {{-- Recherche accessible depuis la page d'accueil (cahier des charges §5). --}}
+            <form method="GET" action="{{ route('materiels.index') }}" class="bg-white shadow-sm rounded-lg p-4 flex flex-col sm:flex-row gap-3">
+                <label for="recherche-accueil" class="sr-only">Rechercher un matériel</label>
+                <x-text-input id="recherche-accueil" name="terme" class="block w-full" placeholder="Rechercher un matériel : PC-000245, Dell Latitude 5420, Jean Dupont…" autofocus />
+                <button type="submit" class="inline-flex justify-center items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700">
+                    Rechercher
+                </button>
+            </form>
+
             <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-4">
                 @foreach ([
                     'total' => 'Matériel total',

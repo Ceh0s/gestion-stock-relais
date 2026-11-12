@@ -10,9 +10,12 @@
                         {{ __('Ajouter un matériel') }}
                     </a>
                 @endif
-                <a href="{{ route('export.materiels', $criteres) }}" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200">
-                    {{ __('Exporter Excel') }}
-                </a>
+                {{-- Mêmes rôles que la route export.materiels (routes/web.php). --}}
+                @if (in_array(Auth::user()->role, ['administrateur', 'gestionnaire_stock', 'auditeur'], true))
+                    <a href="{{ route('export.materiels', $criteres) }}" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200">
+                        {{ __('Exporter Excel') }}
+                    </a>
+                @endif
             </div>
         </div>
     </x-slot>
@@ -20,10 +23,37 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
-            <form method="GET" action="{{ route('materiels.index') }}" class="bg-white shadow-sm rounded-lg p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                <div class="lg:col-span-2">
-                    <x-input-label for="terme" value="Recherche (référence, numéro de série, marque, modèle...)" />
-                    <x-text-input id="terme" name="terme" class="mt-1 block w-full" value="{{ $criteres['terme'] ?? '' }}" />
+            <form method="GET" action="{{ route('materiels.index') }}" class="bg-white shadow-sm rounded-lg p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="sm:col-span-2">
+                    <x-input-label for="terme" value="Recherche (référence, numéro de série, marque, modèle, utilisateur...)" />
+                    <x-text-input id="terme" name="terme" class="mt-1 block w-full" value="{{ $criteres['terme'] ?? '' }}" placeholder="Dell Latitude 5420" autofocus />
+                </div>
+                <div>
+                    <x-input-label for="type_materiel" value="Type" />
+                    <select id="type_materiel" name="type_materiel" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                        <option value="">Tous</option>
+                        @foreach ($types as $type)
+                            <option value="{{ $type }}" @selected(($criteres['type_materiel'] ?? null) === $type)>{{ $type }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <x-input-label for="utilisateur_id" value="Utilisateur affecté" />
+                    <select id="utilisateur_id" name="utilisateur_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                        <option value="">Tous</option>
+                        @foreach ($utilisateurs as $utilisateur)
+                            <option value="{{ $utilisateur->id }}" @selected(($criteres['utilisateur_id'] ?? null) == $utilisateur->id)>{{ $utilisateur->nomComplet() }}</option>
+                        @endforeach
+                    </select>
+                </div>
+                <div>
+                    <x-input-label for="emplacement_id" value="Emplacement" />
+                    <select id="emplacement_id" name="emplacement_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                        <option value="">Tous</option>
+                        @foreach ($emplacements as $emplacement)
+                            <option value="{{ $emplacement->id }}" @selected(($criteres['emplacement_id'] ?? null) == $emplacement->id)>{{ $emplacement->libelle() }}</option>
+                        @endforeach
+                    </select>
                 </div>
                 <div>
                     <x-input-label for="site_id" value="Site" />
@@ -52,7 +82,14 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="lg:col-span-5">
+                <div>
+                    <x-input-label for="tri" value="Trier par" />
+                    <select id="tri" name="tri" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
+                        <option value="">Numéro d'inventaire</option>
+                        <option value="recent" @selected(($criteres['tri'] ?? null) === 'recent')>Dernière modification</option>
+                    </select>
+                </div>
+                <div class="sm:col-span-2 lg:col-span-4">
                     <button type="submit" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700">
                         Rechercher
                     </button>
@@ -60,7 +97,9 @@
                 </div>
             </form>
 
-            <div class="bg-white shadow-sm rounded-lg overflow-hidden">
+            <p class="text-sm text-gray-600">{{ $materiels->total() }} matériel(s) trouvé(s).</p>
+
+            <div class="bg-white shadow-sm rounded-lg overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
@@ -70,6 +109,7 @@
                             <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Stock</th>
                             <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Site</th>
                             <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Emplacement</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Utilisateur</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -78,15 +118,19 @@
                                 <td class="px-4 py-2 text-sm">
                                     <a href="{{ route('materiels.show', $materiel) }}" class="text-indigo-600 hover:underline font-mono">{{ $materiel->reference }}</a>
                                 </td>
-                                <td class="px-4 py-2 text-sm">{{ $materiel->marque }} {{ $materiel->modele }}</td>
+                                <td class="px-4 py-2 text-sm">
+                                    {{ $materiel->marque }} {{ $materiel->modele }}
+                                    <div class="text-xs text-gray-500">{{ $materiel->type_materiel }}</div>
+                                </td>
                                 <td class="px-4 py-2 text-sm">{{ \App\Models\Materiel::libelleStatut($materiel->statut) }}</td>
                                 <td class="px-4 py-2 text-sm">{{ \App\Models\Materiel::libelleCondition($materiel->condition_stock) }}</td>
                                 <td class="px-4 py-2 text-sm">{{ $materiel->emplacement?->site?->nom }}</td>
                                 <td class="px-4 py-2 text-sm">{{ $materiel->emplacement?->nom }}</td>
+                                <td class="px-4 py-2 text-sm">{{ $materiel->utilisateur?->nomComplet() ?? '—' }}</td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">Aucun résultat.</td>
+                                <td colspan="7"class="px-4 py-6 text-center text-sm text-gray-500">Aucun résultat.</td>
                             </tr>
                         @endforelse
                     </tbody>

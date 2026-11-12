@@ -19,14 +19,16 @@ class MaterielController extends Controller
 
     public function index(Request $request): View
     {
-        $criteres = $request->only(['terme', 'site_id', 'condition_stock', 'statut']);
+        $criteres = array_filter($request->only(MaterielService::CRITERES_RECHERCHE), fn ($valeur) => $valeur !== null && $valeur !== '');
         $resultats = $this->materiels->rechercher($criteres);
-        $sites = Site::where('actif', true)->orderBy('nom')->get();
 
         return view('materiels.index', [
             'materiels' => $resultats,
-            'sites' => $sites,
             'criteres' => $criteres,
+            'sites' => Site::where('actif', true)->orderBy('nom')->get(),
+            'emplacements' => Emplacement::with('site')->where('actif', true)->get()->sortBy(fn ($e) => $e->libelle()),
+            'utilisateurs' => User::orderBy('nom')->orderBy('prenom')->get(),
+            'types' => $this->materiels->suggestions()['type_materiel'],
             'conditions' => Materiel::CONDITIONS,
             'statuts' => Materiel::STATUTS,
         ]);
