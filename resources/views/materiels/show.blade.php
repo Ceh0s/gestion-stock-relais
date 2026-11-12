@@ -29,6 +29,7 @@
             <div class="bg-white shadow-sm rounded-lg p-6 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 <div><span class="text-gray-500">Type :</span> {{ $materiel->type_materiel }}</div>
                 <div><span class="text-gray-500">Numéro de série :</span> {{ $materiel->numero_serie ?? '—' }}</div>
+                <div><span class="text-gray-500">Référence constructeur :</span> {{ $materiel->reference_constructeur ?? '—' }}</div>
                 <div><span class="text-gray-500">Statut :</span> <span class="font-medium">{{ \App\Models\Materiel::libelleStatut($materiel->statut) }}</span></div>
                 <div><span class="text-gray-500">Stock :</span> {{ \App\Models\Materiel::libelleCondition($materiel->condition_stock) }}</div>
                 <div><span class="text-gray-500">Site / Emplacement :</span> {{ $materiel->emplacement?->libelle() ?? '—' }}</div>

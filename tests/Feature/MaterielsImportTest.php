@@ -38,6 +38,25 @@ class MaterielsImportTest extends TestCase
         $this->assertSame(1, Materiel::count());
     }
 
+    public function test_la_reference_constructeur_est_importee_et_la_casse_harmonisee(): void
+    {
+        Materiel::create($this->ligne(['reference' => 'PC-EXISTANT', 'emplacement_id' => Emplacement::first()->id]));
+
+        $import = new MaterielsImport;
+        $import->collection(collect([
+            $this->ligne(['reference_constructeur' => ' DL-LAT-5420 ', 'marque' => 'DELL']),
+            // Sans colonne reference_constructeur, et "hp" puis "HP" dans le même fichier.
+            $this->ligne(['reference' => 'PC-002', 'marque' => 'hp']),
+            $this->ligne(['reference' => 'PC-003', 'marque' => 'HP']),
+        ]));
+
+        $this->assertSame([], $import->erreurs);
+        $this->assertSame('DL-LAT-5420', Materiel::where('reference', 'PC-001')->value('reference_constructeur'));
+        $this->assertSame('Dell', Materiel::where('reference', 'PC-001')->value('marque'));
+        $this->assertNull(Materiel::where('reference', 'PC-002')->value('reference_constructeur'));
+        $this->assertSame(['hp'], Materiel::whereIn('reference', ['PC-002', 'PC-003'])->distinct()->pluck('marque')->all());
+    }
+
     public function test_une_reference_deja_en_base_est_refusee_et_rien_n_est_importe(): void
     {
         Materiel::create($this->ligne(['reference' => '621', 'emplacement_id' => Emplacement::first()->id]));

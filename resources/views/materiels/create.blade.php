@@ -9,6 +9,14 @@
                 <form method="POST" action="{{ route('materiels.store') }}" class="space-y-6">
                     @csrf
 
+                    @foreach ($suggestions as $champ => $valeurs)
+                        <datalist id="suggestions-{{ $champ }}">
+                            @foreach ($valeurs as $valeur)
+                                <option value="{{ $valeur }}"></option>
+                            @endforeach
+                        </datalist>
+                    @endforeach
+
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <x-input-label for="reference" value="Numéro d'inventaire" />
@@ -17,23 +25,28 @@
                         </div>
                         <div>
                             <x-input-label for="type_materiel" value="Type de matériel" />
-                            <x-text-input id="type_materiel" name="type_materiel" class="mt-1 block w-full" value="{{ old('type_materiel') }}" required />
+                            <x-text-input id="type_materiel" name="type_materiel" list="suggestions-type_materiel" autocomplete="off" class="mt-1 block w-full" value="{{ old('type_materiel') }}" required />
                             <x-input-error class="mt-2" :messages="$errors->get('type_materiel')" />
                         </div>
                         <div>
                             <x-input-label for="marque" value="Marque" />
-                            <x-text-input id="marque" name="marque" class="mt-1 block w-full" value="{{ old('marque') }}" required />
+                            <x-text-input id="marque" name="marque" list="suggestions-marque" autocomplete="off" class="mt-1 block w-full" value="{{ old('marque') }}" required />
                             <x-input-error class="mt-2" :messages="$errors->get('marque')" />
                         </div>
                         <div>
                             <x-input-label for="modele" value="Modèle" />
-                            <x-text-input id="modele" name="modele" class="mt-1 block w-full" value="{{ old('modele') }}" required />
+                            <x-text-input id="modele" name="modele" list="suggestions-modele" autocomplete="off" class="mt-1 block w-full" value="{{ old('modele') }}" required />
                             <x-input-error class="mt-2" :messages="$errors->get('modele')" />
                         </div>
                         <div>
                             <x-input-label for="numero_serie" value="Numéro de série (optionnel)" />
                             <x-text-input id="numero_serie" name="numero_serie" class="mt-1 block w-full" value="{{ old('numero_serie') }}" />
                             <x-input-error class="mt-2" :messages="$errors->get('numero_serie')" />
+                        </div>
+                        <div>
+                            <x-input-label for="reference_constructeur" value="Référence constructeur (facultatif)" />
+                            <x-text-input id="reference_constructeur" name="reference_constructeur" class="mt-1 block w-full" value="{{ old('reference_constructeur') }}" placeholder="DL-LAT-5420" />
+                            <x-input-error class="mt-2" :messages="$errors->get('reference_constructeur')" />
                         </div>
                         <div>
                             <x-input-label for="condition_stock" value="Type de stock" />

@@ -5,6 +5,7 @@ namespace App\Imports;
 use App\Models\Emplacement;
 use App\Models\Materiel;
 use App\Models\Site;
+use App\Services\MaterielService;
 use Illuminate\Support\Collection as BaseCollection;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Concerns\ToCollection;
@@ -45,6 +46,17 @@ class MaterielsImport implements ToCollection, WithHeadingRow
 
         if ($this->erreurs) {
             return;
+        }
+
+        // Harmonise la casse de la marque, du modèle et du type avec l'inventaire
+        // et avec les lignes précédentes du fichier ("dell" devient "Dell").
+        $service = app(MaterielService::class);
+        $connues = [];
+        foreach ($lignesValides as $i => $ligne) {
+            $lignesValides[$i] = $ligne = $service->harmoniserLibelles($ligne, $connues);
+            foreach (MaterielService::CHAMPS_SUGGERES as $champ) {
+                $connues[$champ][] = $ligne[$champ];
+            }
         }
 
         DB::transaction(function () use ($lignesValides) {
@@ -125,6 +137,7 @@ class MaterielsImport implements ToCollection, WithHeadingRow
             'marque' => trim($row['marque']),
             'modele' => trim($row['modele']),
             'numero_serie' => trim((string) ($row['numero_serie'] ?? '')) ?: null,
+            'reference_constructeur' => trim((string) ($row['reference_constructeur'] ?? '')) ?: null,
             'condition_stock' => $row['condition_stock'],
             'statut' => $row['statut'],
             'emplacement_id' => $emplacement->id,

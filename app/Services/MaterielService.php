@@ -11,8 +11,58 @@ use Illuminate\Validation\ValidationException;
 
 class MaterielService
 {
+    // Champs saisis librement pour lesquels on propose les valeurs déjà connues
+    // (cahier des charges §7 : éviter les doublons et les fautes de saisie).
+    public const CHAMPS_SUGGERES = ['type_materiel', 'marque', 'modele'];
+
+    /**
+     * Valeurs déjà présentes dans l'inventaire, pour les listes de suggestions des formulaires.
+     *
+     * @return array<string, \Illuminate\Support\Collection<int, string>>
+     */
+    public function suggestions(): array
+    {
+        $suggestions = [];
+        foreach (self::CHAMPS_SUGGERES as $champ) {
+            $suggestions[$champ] = Materiel::query()->distinct()->orderBy($champ)->pluck($champ);
+        }
+
+        return $suggestions;
+    }
+
+    /**
+     * Remplace une saisie par la valeur déjà connue qui ne diffère que par la casse
+     * (ex. "dell" devient "Dell" si "Dell" existe déjà), pour éviter les doublons.
+     * $connues permet à l'import de tenir compte des lignes précédentes du même fichier.
+     *
+     * @param  array<string, list<string>>  $connues
+     */
+    public function harmoniserLibelles(array $data, array $connues = []): array
+    {
+        foreach (self::CHAMPS_SUGGERES as $champ) {
+            if (! isset($data[$champ]) || ! is_string($data[$champ])) {
+                continue;
+            }
+
+            $valeur = trim($data[$champ]);
+            $cle = mb_strtolower($valeur);
+
+            $existante = collect($connues[$champ] ?? [])->first(fn ($connue) => mb_strtolower($connue) === $cle)
+                ?? Materiel::whereRaw("LOWER({$champ}) = ?", [$cle])->value($champ);
+
+            $data[$champ] = $existante ?? $valeur;
+        }
+
+        if (isset($data['reference_constructeur'])) {
+            $data['reference_constructeur'] = trim($data['reference_constructeur']) ?: null;
+        }
+
+        return $data;
+    }
+
     public function ajouter(array $data, User $acteur): Materiel
     {
+        $data = $this->harmoniserLibelles($data);
         $data['reference'] = strtoupper(trim($data['reference']));
 
         if (Materiel::where('reference', $data['reference'])->exists()) {
@@ -187,6 +237,7 @@ class MaterielService
             $query->where(function ($q) use ($terme) {
                 $q->where('reference', 'like', "%{$terme}%")
                     ->orWhere('numero_serie', 'like', "%{$terme}%")
+                    ->orWhere('reference_constructeur', 'like', "%{$terme}%")
                     ->orWhere('type_materiel', 'like', "%{$terme}%")
                     ->orWhere('marque', 'like', "%{$terme}%")
                     ->orWhere('modele', 'like', "%{$terme}%")

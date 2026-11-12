@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
-    'reference', 'type_materiel', 'marque', 'modele', 'numero_serie',
+    'reference', 'type_materiel', 'marque', 'modele', 'numero_serie', 'reference_constructeur',
     'condition_stock', 'statut', 'emplacement_id', 'utilisateur_id',
     'date_acquisition', 'date_fin_garantie', 'commentaire', 'version',
 ])]

@@ -39,6 +39,7 @@ class MaterielController extends Controller
             'utilisateurs' => User::where('actif', true)->orderBy('nom')->get(),
             'conditions' => Materiel::CONDITIONS,
             'statuts' => Materiel::STATUTS,
+            'suggestions' => $this->materiels->suggestions(),
         ]);
     }
 
@@ -50,6 +51,7 @@ class MaterielController extends Controller
             'marque' => ['required', 'string', 'max:100'],
             'modele' => ['required', 'string', 'max:150'],
             'numero_serie' => ['nullable', 'string', 'max:100'],
+            'reference_constructeur' => ['nullable', 'string', 'max:100'],
             'condition_stock' => ['required', Rule::in(Materiel::CONDITIONS)],
             'statut' => ['required', Rule::in(Materiel::STATUTS)],
             'emplacement_id' => ['required', 'exists:emplacements,id'],
@@ -85,6 +87,7 @@ class MaterielController extends Controller
             'materiel' => $materiel,
             'emplacements' => Emplacement::with('site')->where('actif', true)->get(),
             'conditions' => Materiel::CONDITIONS,
+            'suggestions' => $this->materiels->suggestions(),
         ]);
     }
 
@@ -94,14 +97,18 @@ class MaterielController extends Controller
             'type_materiel' => ['required', 'string', 'max:100'],
             'marque' => ['required', 'string', 'max:100'],
             'modele' => ['required', 'string', 'max:150'],
-            'numero_serie' => ['nullable', 'string', 'max:100'],
+            // Sans cette règle, un numéro de série déjà pris faisait échouer la base avec une erreur SQL brute.
+            'numero_serie' => ['nullable', 'string', 'max:100', Rule::unique('materiels', 'numero_serie')->ignore($materiel->id)],
+            'reference_constructeur' => ['nullable', 'string', 'max:100'],
             'condition_stock' => ['required', Rule::in(Materiel::CONDITIONS)],
             'date_acquisition' => ['nullable', 'date'],
             'date_fin_garantie' => ['nullable', 'date'],
             'commentaire' => ['nullable', 'string'],
+        ], [
+            'numero_serie.unique' => 'Ce numéro de série est déjà utilisé par un autre matériel.',
         ]);
 
-        $materiel->update($data);
+        $materiel->update($this->materiels->harmoniserLibelles($data));
 
         return redirect()->route('materiels.show', $materiel)->with('status', 'Matériel mis à jour.');
     }

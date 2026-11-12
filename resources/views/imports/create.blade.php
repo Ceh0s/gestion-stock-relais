@@ -26,7 +26,7 @@
             <div class="bg-white shadow-sm rounded-lg p-6">
                 <p class="text-sm text-gray-600 mb-4">
                     Le fichier doit contenir au minimum les colonnes : <code>reference, type_materiel, marque, modele, condition_stock, statut, site, emplacement</code>.
-                    Colonnes facultatives : <code>numero_serie, date_acquisition, date_fin_garantie, commentaire</code>.
+                    Colonnes facultatives : <code>numero_serie, reference_constructeur, date_acquisition, date_fin_garantie, commentaire</code>.
                     En cas d'erreur sur une seule ligne, l'import complet est rejeté (mode strict).
                 </p>
 

@@ -14,7 +14,7 @@ class MaterielsExport implements FromCollection, WithHeadings
     public function headings(): array
     {
         return [
-            'reference', 'type_materiel', 'marque', 'modele', 'numero_serie',
+            'reference', 'type_materiel', 'marque', 'modele', 'numero_serie', 'reference_constructeur',
             'condition_stock', 'statut', 'site', 'emplacement', 'utilisateur',
             'date_acquisition', 'date_fin_garantie', 'commentaire',
         ];
@@ -40,6 +40,7 @@ class MaterielsExport implements FromCollection, WithHeadings
             'marque' => $materiel->marque,
             'modele' => $materiel->modele,
             'numero_serie' => $materiel->numero_serie,
+            'reference_constructeur' => $materiel->reference_constructeur,
             'condition_stock' => $materiel->condition_stock,
             'statut' => $materiel->statut,
             'site' => $materiel->emplacement?->site?->nom,
