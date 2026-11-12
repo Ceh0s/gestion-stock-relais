@@ -17,6 +17,15 @@ class MaterielController extends Controller
 {
     public function __construct(private readonly MaterielService $materiels) {}
 
+    /**
+     * Version du matériel affichée quand le formulaire a été ouvert (champ caché "version"),
+     * ou null si le formulaire ne l'envoie pas : dans ce cas, pas de contrôle de concurrence.
+     */
+    private function versionAttendue(Request $request): ?int
+    {
+        return $request->filled('version') ? $request->integer('version') : null;
+    }
+
     public function index(Request $request): View
     {
         $criteres = array_filter($request->only(MaterielService::CRITERES_RECHERCHE), fn ($valeur) => $valeur !== null && $valeur !== '');
@@ -110,9 +119,14 @@ class MaterielController extends Controller
             'numero_serie.unique' => 'Ce numéro de série est déjà utilisé par un autre matériel.',
         ]);
 
-        $materiel->update($this->materiels->harmoniserLibelles($data));
+        try {
+            $modifie = $this->materiels->modifier($materiel, $data, $request->user(), $this->versionAttendue($request));
+        } catch (ValidationException $e) {
+            return back()->withErrors($e->errors())->withInput();
+        }
 
-        return redirect()->route('materiels.show', $materiel)->with('status', 'Matériel mis à jour.');
+        return redirect()->route('materiels.show', $materiel)
+            ->with('status', $modifie ? 'Matériel mis à jour.' : 'Aucune modification.');
     }
 
     public function deplacer(Request $request, Materiel $materiel): RedirectResponse
@@ -124,7 +138,7 @@ class MaterielController extends Controller
         ]);
 
         try {
-            $this->materiels->deplacer($materiel, (int) $data['emplacement_id'], $data['motif'] ?? null, $data['commentaire'] ?? null, $request->user());
+            $this->materiels->deplacer($materiel, (int) $data['emplacement_id'], $data['motif'] ?? null, $data['commentaire'] ?? null, $request->user(), $this->versionAttendue($request));
         } catch (ValidationException $e) {
             return back()->withErrors($e->errors());
         }
@@ -140,7 +154,7 @@ class MaterielController extends Controller
         ]);
 
         try {
-            $this->materiels->attribuer($materiel, (int) $data['utilisateur_id'], $data['commentaire'] ?? null, $request->user());
+            $this->materiels->attribuer($materiel, (int) $data['utilisateur_id'], $data['commentaire'] ?? null, $request->user(), $this->versionAttendue($request));
         } catch (ValidationException $e) {
             return back()->withErrors($e->errors());
         }
@@ -157,7 +171,7 @@ class MaterielController extends Controller
         ]);
 
         try {
-            $this->materiels->retournerEnStock($materiel, (int) $data['emplacement_id'], $data['statut'], $data['commentaire'] ?? null, $request->user());
+            $this->materiels->retournerEnStock($materiel, (int) $data['emplacement_id'], $data['statut'], $data['commentaire'] ?? null, $request->user(), $this->versionAttendue($request));
         } catch (ValidationException $e) {
             return back()->withErrors($e->errors());
         }
@@ -171,7 +185,11 @@ class MaterielController extends Controller
             'commentaire' => ['nullable', 'string'],
         ]);
 
-        $this->materiels->mettreEnReparation($materiel, $data['commentaire'] ?? null, $request->user());
+        try {
+            $this->materiels->mettreEnReparation($materiel, $data['commentaire'] ?? null, $request->user(), $this->versionAttendue($request));
+        } catch (ValidationException $e) {
+            return back()->withErrors($e->errors());
+        }
 
         return redirect()->route('materiels.show', $materiel)->with('status', 'Matériel envoyé en réparation.');
     }

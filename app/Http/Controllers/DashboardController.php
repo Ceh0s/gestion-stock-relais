@@ -21,7 +21,7 @@ class DashboardController extends Controller
         ];
 
         $derniersMateriels = Materiel::with('emplacement.site')->latest()->take(5)->get();
-        $derniersMouvements = Mouvement::with(['materiel', 'utilisateurConnecte'])->latest('created_at')->take(10)->get();
+        $derniersMouvements = Mouvement::with(['materiel', 'utilisateurConnecte'])->latest('created_at')->latest('id')->take(10)->get();
         $enReparationLongue = Materiel::where('statut', 'reparation')
             ->whereDate('updated_at', '<=', now()->subDays(14))
             ->with('emplacement.site')

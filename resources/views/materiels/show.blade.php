@@ -46,6 +46,7 @@
                             <h3 class="font-semibold text-gray-800 mb-4">Déplacer</h3>
                             <form method="POST" action="{{ route('materiels.deplacer', $materiel) }}" class="space-y-3">
                                 @csrf
+                                <input type="hidden" name="version" value="{{ $materiel->version }}">
                                 <select name="emplacement_id" class="block w-full border-gray-300 rounded-md shadow-sm text-sm" required>
                                     <option value="">-- Nouvel emplacement --</option>
                                     @foreach ($emplacements as $emplacement)
@@ -63,6 +64,7 @@
                             <h3 class="font-semibold text-gray-800 mb-4">Attribuer</h3>
                             <form method="POST" action="{{ route('materiels.attribuer', $materiel) }}" class="space-y-3">
                                 @csrf
+                                <input type="hidden" name="version" value="{{ $materiel->version }}">
                                 <select name="utilisateur_id" class="block w-full border-gray-300 rounded-md shadow-sm text-sm" required>
                                     <option value="">-- Utilisateur --</option>
                                     @foreach ($utilisateurs as $utilisateur)
@@ -80,6 +82,7 @@
                             <h3 class="font-semibold text-gray-800 mb-4">Retour en stock</h3>
                             <form method="POST" action="{{ route('materiels.retourner', $materiel) }}" class="space-y-3">
                                 @csrf
+                                <input type="hidden" name="version" value="{{ $materiel->version }}">
                                 <select name="emplacement_id" class="block w-full border-gray-300 rounded-md shadow-sm text-sm" required>
                                     <option value="">-- Emplacement de retour --</option>
                                     @foreach ($emplacements as $emplacement)
@@ -100,6 +103,7 @@
                             <h3 class="font-semibold text-gray-800 mb-4">Mettre en réparation</h3>
                             <form method="POST" action="{{ route('materiels.reparation', $materiel) }}" class="space-y-3">
                                 @csrf
+                                <input type="hidden" name="version" value="{{ $materiel->version }}">
                                 <input type="text" name="commentaire" placeholder="Diagnostic / commentaire" class="block w-full border-gray-300 rounded-md shadow-sm text-sm">
                                 <button class="inline-flex items-center px-3 py-1.5 bg-amber-600 text-white text-sm font-medium rounded-md hover:bg-amber-700">Envoyer en réparation</button>
                             </form>
@@ -108,7 +112,7 @@
                 </div>
             @endif
 
-            <div class="bg-white shadow-sm rounded-lg p-6">
+            <div class="bg-white shadow-sm rounded-lg p-6 overflow-x-auto">
                 <h3 class="font-semibold text-gray-800 mb-4">Historique des mouvements</h3>
                 <table class="min-w-full divide-y divide-gray-200 text-sm">
                     <thead>
@@ -119,6 +123,7 @@
                             <th class="py-2 pr-4">Statut</th>
                             <th class="py-2 pr-4">Utilisateur</th>
                             <th class="py-2 pr-4">Par</th>
+                            <th class="py-2 pr-4">Détails</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -148,9 +153,20 @@
                                     @endif
                                 </td>
                                 <td class="py-2 pr-4">{{ $mouvement->utilisateurConnecte?->nomComplet() ?? '—' }}</td>
+                                <td class="py-2 pr-4">
+                                    @foreach ($mouvement->modifications ?? [] as $champ => [$ancienne, $nouvelle])
+                                        <div>
+                                            <span class="text-gray-500">{{ \App\Models\Mouvement::LIBELLES_CHAMPS[$champ] ?? $champ }} :</span>
+                                            {{ \App\Models\Mouvement::valeurAffichee($champ, $ancienne) }} &rarr; {{ \App\Models\Mouvement::valeurAffichee($champ, $nouvelle) }}
+                                        </div>
+                                    @endforeach
+                                    @if ($mouvement->commentaire)
+                                        <div class="text-gray-600 italic">{{ $mouvement->commentaire }}</div>
+                                    @endif
+                                </td>
                             </tr>
                         @empty
-                            <tr><td colspan="6" class="py-4 text-center text-gray-500">Aucun mouvement enregistré.</td></tr>
+                            <tr><td colspan="7" class="py-4 text-center text-gray-500">Aucun mouvement enregistré.</td></tr>
                         @endforelse
                     </tbody>
                 </table>

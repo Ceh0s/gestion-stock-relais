@@ -87,24 +87,130 @@ class MaterielService
             throw ValidationException::withMessages(['utilisateur_id' => 'Un utilisateur doit être sélectionné pour un matériel attribué.']);
         }
 
-        return DB::transaction(function () use ($data) {
-            return Materiel::create($data);
+        return DB::transaction(function () use ($data, $acteur) {
+            $materiel = Materiel::create($data);
+            $this->tracerCreation($materiel, $acteur);
+
+            return $materiel;
         });
     }
 
-    public function deplacer(Materiel $materiel, int $nouvelEmplacementId, ?string $motif, ?string $commentaire, User $acteur): Materiel
+    /**
+     * Écrit l'événement de création d'un matériel dans l'historique
+     * (Algorithme §4 "Créer une trace dans le journal d'activité", §10.2 pour l'import).
+     */
+    public function tracerCreation(Materiel $materiel, ?User $acteur, ?string $commentaire = null): Mouvement
+    {
+        return Mouvement::create([
+            'materiel_id' => $materiel->id,
+            'nouvel_emplacement_id' => $materiel->emplacement_id,
+            'nouveau_statut' => $materiel->statut,
+            'nouvel_utilisateur_id' => $materiel->utilisateur_id,
+            'user_id' => $acteur?->id,
+            'motif' => 'creation',
+            'commentaire' => $commentaire,
+        ]);
+    }
+
+    // Champs de la fiche modifiables par le formulaire "Modifier la fiche".
+    // L'emplacement, le statut et l'utilisateur passent par les actions dédiées.
+    public const CHAMPS_FICHE = [
+        'type_materiel', 'marque', 'modele', 'numero_serie', 'reference_constructeur',
+        'condition_stock', 'date_acquisition', 'date_fin_garantie', 'commentaire',
+    ];
+
+    /**
+     * Modifie la fiche et enregistre l'ancienne et la nouvelle valeur de chaque champ changé
+     * (cahier des charges §11). Renvoie false si rien n'a changé (aucun mouvement écrit).
+     */
+    public function modifier(Materiel $materiel, array $data, User $acteur, ?int $versionAttendue = null): bool
+    {
+        $data = $this->harmoniserLibelles($data);
+
+        return DB::transaction(function () use ($materiel, $data, $acteur, $versionAttendue) {
+            $materiel = $this->verrouiller($materiel, $versionAttendue);
+
+            $changements = [];
+            foreach (self::CHAMPS_FICHE as $champ) {
+                if (! array_key_exists($champ, $data)) {
+                    continue;
+                }
+
+                $ancienne = $this->valeurComparable($materiel->getAttribute($champ));
+                $nouvelle = $this->valeurComparable($data[$champ]);
+
+                if ($ancienne !== $nouvelle) {
+                    $changements[$champ] = [$ancienne, $nouvelle];
+                }
+            }
+
+            if (! $changements) {
+                return false;
+            }
+
+            $nouvellesValeurs = array_map(fn (array $valeurs) => $valeurs[1], $changements);
+            $materiel->update([...$nouvellesValeurs, 'version' => $materiel->version + 1]);
+
+            Mouvement::create([
+                'materiel_id' => $materiel->id,
+                'ancien_statut' => $materiel->statut,
+                'nouveau_statut' => $materiel->statut,
+                'user_id' => $acteur->id,
+                'motif' => 'modification',
+                'modifications' => $changements,
+            ]);
+
+            return true;
+        });
+    }
+
+    /**
+     * Normalise une valeur pour la comparer et l'enregistrer dans l'historique :
+     * date => "AAAA-MM-JJ", texte vide => null.
+     */
+    private function valeurComparable(mixed $valeur): ?string
+    {
+        if ($valeur instanceof \DateTimeInterface) {
+            return $valeur->format('Y-m-d');
+        }
+
+        $valeur = trim((string) $valeur);
+
+        return $valeur === '' ? null : $valeur;
+    }
+
+    /**
+     * Relit le matériel en le verrouillant jusqu'à la fin de la transaction, puis vérifie que
+     * personne ne l'a modifié depuis l'affichage de la page (Algorithme §2.3 et §17).
+     * $versionAttendue = null : pas de vérification (appel hors formulaire).
+     */
+    private function verrouiller(Materiel $materiel, ?int $versionAttendue): Materiel
+    {
+        $verrouille = Materiel::whereKey($materiel->id)->lockForUpdate()->firstOrFail();
+
+        if ($versionAttendue !== null && $verrouille->version !== $versionAttendue) {
+            throw ValidationException::withMessages([
+                'version' => 'Le matériel a été modifié par un autre utilisateur. Rechargez la fiche avant de recommencer.',
+            ]);
+        }
+
+        return $verrouille;
+    }
+
+    public function deplacer(Materiel $materiel, int $nouvelEmplacementId, ?string $motif, ?string $commentaire, User $acteur, ?int $versionAttendue = null): Materiel
     {
         $nouvelEmplacement = Emplacement::where('id', $nouvelEmplacementId)->where('actif', true)->first();
         if (! $nouvelEmplacement) {
             throw ValidationException::withMessages(['emplacement_id' => "Le nouvel emplacement n'existe pas ou est inactif."]);
         }
 
-        if ($materiel->emplacement_id === $nouvelEmplacement->id) {
-            throw ValidationException::withMessages(['emplacement_id' => 'Le matériel est déjà à cet emplacement.']);
-        }
+        return DB::transaction(function () use ($materiel, $nouvelEmplacement, $motif, $commentaire, $acteur, $versionAttendue) {
+            $materiel = $this->verrouiller($materiel, $versionAttendue);
 
-        return DB::transaction(function () use ($materiel, $nouvelEmplacement, $motif, $commentaire, $acteur) {
-            $materiel = Materiel::whereKey($materiel->id)->lockForUpdate()->firstOrFail();
+            // Vérifié après le verrou, sur les données à jour.
+            if ($materiel->emplacement_id === $nouvelEmplacement->id) {
+                throw ValidationException::withMessages(['emplacement_id' => 'Le matériel est déjà à cet emplacement.']);
+            }
 
             $ancienEmplacementId = $materiel->emplacement_id;
 
@@ -128,15 +234,15 @@ class MaterielService
         });
     }
 
-    public function attribuer(Materiel $materiel, int $nouvelUtilisateurId, ?string $commentaire, User $acteur): Materiel
+    public function attribuer(Materiel $materiel, int $nouvelUtilisateurId, ?string $commentaire, User $acteur, ?int $versionAttendue = null): Materiel
     {
         $destinataire = User::where('id', $nouvelUtilisateurId)->where('actif', true)->first();
         if (! $destinataire) {
             throw ValidationException::withMessages(['utilisateur_id' => "L'utilisateur destinataire n'existe pas ou est inactif."]);
         }
 
-        return DB::transaction(function () use ($materiel, $destinataire, $commentaire, $acteur) {
-            $materiel = Materiel::whereKey($materiel->id)->lockForUpdate()->firstOrFail();
+        return DB::transaction(function () use ($materiel, $destinataire, $commentaire, $acteur, $versionAttendue) {
+            $materiel = $this->verrouiller($materiel, $versionAttendue);
 
             $ancienUtilisateurId = $materiel->utilisateur_id;
             $ancienStatut = $materiel->statut;
@@ -162,7 +268,7 @@ class MaterielService
         });
     }
 
-    public function retournerEnStock(Materiel $materiel, int $emplacementId, string $nouveauStatut, ?string $commentaire, User $acteur): Materiel
+    public function retournerEnStock(Materiel $materiel, int $emplacementId, string $nouveauStatut, ?string $commentaire, User $acteur, ?int $versionAttendue = null): Materiel
     {
         if (! in_array($nouveauStatut, ['disponible', 'reparation', 'reforme'], true)) {
             throw ValidationException::withMessages(['statut' => 'Statut de retour invalide.']);
@@ -173,8 +279,8 @@ class MaterielService
             throw ValidationException::withMessages(['emplacement_id' => "L'emplacement de retour n'existe pas ou est inactif."]);
         }
 
-        return DB::transaction(function () use ($materiel, $emplacement, $nouveauStatut, $commentaire, $acteur) {
-            $materiel = Materiel::whereKey($materiel->id)->lockForUpdate()->firstOrFail();
+        return DB::transaction(function () use ($materiel, $emplacement, $nouveauStatut, $commentaire, $acteur, $versionAttendue) {
+            $materiel = $this->verrouiller($materiel, $versionAttendue);
 
             $ancienUtilisateurId = $materiel->utilisateur_id;
             $ancienStatut = $materiel->statut;
@@ -204,10 +310,10 @@ class MaterielService
         });
     }
 
-    public function mettreEnReparation(Materiel $materiel, ?string $commentaire, User $acteur): Materiel
+    public function mettreEnReparation(Materiel $materiel, ?string $commentaire, User $acteur, ?int $versionAttendue = null): Materiel
     {
-        return DB::transaction(function () use ($materiel, $commentaire, $acteur) {
-            $materiel = Materiel::whereKey($materiel->id)->lockForUpdate()->firstOrFail();
+        return DB::transaction(function () use ($materiel, $commentaire, $acteur, $versionAttendue) {
+            $materiel = $this->verrouiller($materiel, $versionAttendue);
 
             $ancienStatut = $materiel->statut;
 

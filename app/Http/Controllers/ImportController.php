@@ -25,7 +25,7 @@ class ImportController extends Controller
         ]);
 
         $fichier = $request->file('fichier');
-        $import = new MaterielsImport;
+        $import = new MaterielsImport($request->user(), $fichier->getClientOriginalName());
 
         Excel::import($import, $fichier);
 

@@ -74,6 +74,7 @@ class Materiel extends Model
 
     public function mouvements(): HasMany
     {
-        return $this->hasMany(Mouvement::class)->latest('created_at');
+        // L'id départage les mouvements enregistrés dans la même seconde (le plus récent d'abord).
+        return $this->hasMany(Mouvement::class)->latest('created_at')->latest('id');
     }
 }

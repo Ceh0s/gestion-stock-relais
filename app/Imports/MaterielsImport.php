@@ -5,6 +5,7 @@ namespace App\Imports;
 use App\Models\Emplacement;
 use App\Models\Materiel;
 use App\Models\Site;
+use App\Models\User;
 use App\Services\MaterielService;
 use Illuminate\Support\Collection as BaseCollection;
 use Illuminate\Support\Facades\DB;
@@ -22,6 +23,15 @@ class MaterielsImport implements ToCollection, WithHeadingRow
     public int $nombreLignes = 0;
 
     public int $nombreImportees = 0;
+
+    /**
+     * @param  User|null  $acteur  utilisateur qui importe, enregistré comme auteur de la création dans l'historique
+     * @param  string|null  $nomFichier  repris dans le commentaire de l'événement de création
+     */
+    public function __construct(
+        private readonly ?User $acteur = null,
+        private readonly ?string $nomFichier = null,
+    ) {}
 
     public function collection(BaseCollection $rows): void
     {
@@ -59,9 +69,13 @@ class MaterielsImport implements ToCollection, WithHeadingRow
             }
         }
 
-        DB::transaction(function () use ($lignesValides) {
+        $commentaire = $this->nomFichier ? "Import du fichier {$this->nomFichier}" : 'Import Excel';
+
+        DB::transaction(function () use ($lignesValides, $service, $commentaire) {
             foreach ($lignesValides as $ligne) {
-                Materiel::create($ligne);
+                $materiel = Materiel::create($ligne);
+                // Algorithme §10.2 : "Ajouter un événement de création".
+                $service->tracerCreation($materiel, $this->acteur, $commentaire);
                 $this->nombreImportees++;
             }
         });

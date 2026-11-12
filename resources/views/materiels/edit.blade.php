@@ -9,6 +9,8 @@
                 <form method="POST" action="{{ route('materiels.update', $materiel) }}" class="space-y-6">
                     @csrf
                     @method('put')
+                    <input type="hidden" name="version" value="{{ $materiel->version }}">
+                    <x-input-error :messages="$errors->get('version')" />
 
                     @foreach ($suggestions as $champ => $valeurs)
                         <datalist id="suggestions-{{ $champ }}">
