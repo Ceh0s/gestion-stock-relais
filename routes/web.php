@@ -5,6 +5,7 @@ use App\Http\Controllers\EmplacementController;
 use App\Http\Controllers\ExportController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\MaterielController;
+use App\Http\Controllers\ParametreController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\UserController;
@@ -56,6 +57,8 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('role:administrateur')->group(function () {
         Route::resource('users', UserController::class)->except(['show', 'destroy']);
+        Route::get('/parametres', [ParametreController::class, 'edit'])->name('parametres.edit');
+        Route::put('/parametres', [ParametreController::class, 'update'])->name('parametres.update');
 
         // Suppression définitive : uniquement ce qui n'a jamais servi (sinon on désactive).
         Route::delete('/sites/{site}', [SiteController::class, 'destroy'])->name('sites.destroy');

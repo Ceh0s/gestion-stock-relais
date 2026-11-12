@@ -30,6 +30,9 @@
                         <x-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
                             {{ __('Utilisateurs') }}
                         </x-nav-link>
+                        <x-nav-link :href="route('parametres.edit')" :active="request()->routeIs('parametres.*')">
+                            {{ __('Paramètres') }}
+                        </x-nav-link>
                     @endif
                 </div>
             </div>
@@ -99,6 +102,9 @@
             @if (Auth::user()->estAdministrateur())
                 <x-responsive-nav-link :href="route('users.index')" :active="request()->routeIs('users.*')">
                     {{ __('Utilisateurs') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('parametres.edit')" :active="request()->routeIs('parametres.*')">
+                    {{ __('Paramètres') }}
                 </x-responsive-nav-link>
             @endif
         </div>
