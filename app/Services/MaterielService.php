@@ -282,6 +282,15 @@ class MaterielService
         return DB::transaction(function () use ($materiel, $emplacement, $nouveauStatut, $commentaire, $acteur, $versionAttendue) {
             $materiel = $this->verrouiller($materiel, $versionAttendue);
 
+            // Algorithme §8 : "Vérifier qu'il est actuellement attribué". Le retour de réparation
+            // (droit du technicien, Algorithme §18) passe aussi par ici.
+            if (! in_array($materiel->statut, ['attribue', 'reparation'], true)) {
+                throw ValidationException::withMessages(['statut' => 'Seul un matériel attribué ou en réparation peut être retourné en stock (statut actuel : '.Materiel::libelleStatut($materiel->statut).').']);
+            }
+            if ($materiel->statut === 'reparation' && $nouveauStatut === 'reparation') {
+                throw ValidationException::withMessages(['statut' => 'Le matériel est déjà en réparation.']);
+            }
+
             $ancienUtilisateurId = $materiel->utilisateur_id;
             $ancienStatut = $materiel->statut;
             $ancienEmplacementId = $materiel->emplacement_id;

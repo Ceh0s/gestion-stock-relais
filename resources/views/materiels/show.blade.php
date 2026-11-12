@@ -78,6 +78,8 @@
                     @endif
 
                     @if (Auth::user()->peutGerer() || Auth::user()->role === 'technicien')
+                        {{-- Algorithme §8 : seul un matériel attribué (ou en réparation) peut revenir en stock. --}}
+                        @if (in_array($materiel->statut, ['attribue', 'reparation'], true))
                         <div class="bg-white shadow-sm rounded-lg p-6">
                             <h3 class="font-semibold text-gray-800 mb-4">Retour en stock</h3>
                             <form method="POST" action="{{ route('materiels.retourner', $materiel) }}" class="space-y-3">
@@ -91,13 +93,16 @@
                                 </select>
                                 <select name="statut" class="block w-full border-gray-300 rounded-md shadow-sm text-sm" required>
                                     <option value="disponible">{{ \App\Models\Materiel::libelleStatut('disponible') }}</option>
-                                    <option value="reparation">{{ \App\Models\Materiel::libelleStatut('reparation') }}</option>
+                                    @if ($materiel->statut !== 'reparation')
+                                        <option value="reparation">{{ \App\Models\Materiel::libelleStatut('reparation') }}</option>
+                                    @endif
                                     <option value="reforme">{{ \App\Models\Materiel::libelleStatut('reforme') }}</option>
                                 </select>
                                 <input type="text" name="commentaire" placeholder="Commentaire" class="block w-full border-gray-300 rounded-md shadow-sm text-sm">
                                 <button class="inline-flex items-center px-3 py-1.5 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700">Retourner</button>
                             </form>
                         </div>
+                        @endif
 
                         <div class="bg-white shadow-sm rounded-lg p-6">
                             <h3 class="font-semibold text-gray-800 mb-4">Mettre en réparation</h3>
