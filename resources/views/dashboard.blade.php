@@ -10,13 +10,13 @@
 
             <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-4">
                 @foreach ([
-                    'total' => 'Materiel total',
+                    'total' => 'Matériel total',
                     'disponible' => 'Disponible',
                     'neuf' => 'Neuf',
-                    'attribue' => 'Attribue',
-                    'reparation' => 'En reparation',
+                    'attribue' => 'Attribué',
+                    'reparation' => 'En réparation',
                     'en_transit' => 'En transit',
-                    'a_verifier' => 'A verifier',
+                    'a_verifier' => 'À vérifier',
                 ] as $cle => $libelle)
                     <div class="bg-white shadow-sm rounded-lg p-4">
                         <div class="text-2xl font-bold text-gray-900">{{ $stats[$cle] }}</div>
@@ -27,7 +27,7 @@
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div class="bg-white shadow-sm rounded-lg p-6">
-                    <h3 class="font-semibold text-gray-800 mb-4">Derniers materiels ajoutes</h3>
+                    <h3 class="font-semibold text-gray-800 mb-4">Derniers matériels ajoutés</h3>
                     <ul class="divide-y divide-gray-100">
                         @forelse ($derniersMateriels as $materiel)
                             <li class="py-2 flex justify-between text-sm">
@@ -37,7 +37,7 @@
                                 <span class="text-gray-500">{{ $materiel->emplacement?->site?->nom }}</span>
                             </li>
                         @empty
-                            <li class="py-2 text-sm text-gray-500">Aucun materiel.</li>
+                            <li class="py-2 text-sm text-gray-500">Aucun matériel.</li>
                         @endforelse
                     </ul>
                 </div>
@@ -53,7 +53,7 @@
                                     </a>
                                     <span class="text-gray-500">{{ $mouvement->created_at->diffForHumans() }}</span>
                                 </div>
-                                <div class="text-gray-500">{{ $mouvement->motif }} par {{ $mouvement->utilisateurConnecte?->nomComplet() ?? 'systeme' }}</div>
+                                <div class="text-gray-500">{{ $mouvement->motif }} par {{ $mouvement->utilisateurConnecte?->nomComplet() ?? 'système' }}</div>
                             </li>
                         @empty
                             <li class="py-2 text-sm text-gray-500">Aucun mouvement.</li>
@@ -64,7 +64,7 @@
 
             @if ($enReparationLongue->isNotEmpty())
                 <div class="bg-white shadow-sm rounded-lg p-6">
-                    <h3 class="font-semibold text-gray-800 mb-4">Materiels en reparation depuis plus de 14 jours</h3>
+                    <h3 class="font-semibold text-gray-800 mb-4">Matériels en réparation depuis plus de 14 jours</h3>
                     <ul class="divide-y divide-gray-100">
                         @foreach ($enReparationLongue as $materiel)
                             <li class="py-2 flex justify-between text-sm">

@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 #[Signature('app:create-admin {email} {--prenom=Admin} {--nom=Principal} {--password=}')]
-#[Description("Cree un compte administrateur (usage ponctuel en production, pas d'acces SSH requis)")]
+#[Description("Crée un compte administrateur (usage ponctuel en production, pas d'accès SSH requis)")]
 class CreateAdminCommand extends Command
 {
     public function handle(): int
@@ -18,7 +18,7 @@ class CreateAdminCommand extends Command
         $email = $this->argument('email');
 
         if (User::where('email', $email)->exists()) {
-            $this->error("Un compte existe deja avec l'email {$email}.");
+            $this->error("Un compte existe déjà avec l'email {$email}.");
 
             return self::FAILURE;
         }
@@ -34,7 +34,7 @@ class CreateAdminCommand extends Command
             'password' => Hash::make($password),
         ]);
 
-        $this->info("Compte administrateur cree pour {$email}.");
+        $this->info("Compte administrateur créé pour {$email}.");
 
         if (! $this->option('password')) {
             $this->warn("Mot de passe genere (a noter, il ne sera plus jamais affiche) : {$password}");

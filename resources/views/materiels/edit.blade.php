@@ -12,11 +12,11 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <x-input-label value="Numero d'inventaire" />
+                            <x-input-label value="Numéro d'inventaire" />
                             <x-text-input class="mt-1 block w-full bg-gray-100" value="{{ $materiel->reference }}" disabled />
                         </div>
                         <div>
-                            <x-input-label for="type_materiel" value="Type de materiel" />
+                            <x-input-label for="type_materiel" value="Type de matériel" />
                             <x-text-input id="type_materiel" name="type_materiel" class="mt-1 block w-full" value="{{ old('type_materiel', $materiel->type_materiel) }}" required />
                             <x-input-error class="mt-2" :messages="$errors->get('type_materiel')" />
                         </div>
@@ -26,12 +26,12 @@
                             <x-input-error class="mt-2" :messages="$errors->get('marque')" />
                         </div>
                         <div>
-                            <x-input-label for="modele" value="Modele" />
+                            <x-input-label for="modele" value="Modèle" />
                             <x-text-input id="modele" name="modele" class="mt-1 block w-full" value="{{ old('modele', $materiel->modele) }}" required />
                             <x-input-error class="mt-2" :messages="$errors->get('modele')" />
                         </div>
                         <div>
-                            <x-input-label for="numero_serie" value="Numero de serie" />
+                            <x-input-label for="numero_serie" value="Numéro de série" />
                             <x-text-input id="numero_serie" name="numero_serie" class="mt-1 block w-full" value="{{ old('numero_serie', $materiel->numero_serie) }}" />
                             <x-input-error class="mt-2" :messages="$errors->get('numero_serie')" />
                         </div>
@@ -58,7 +58,7 @@
                         <textarea id="commentaire" name="commentaire" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">{{ old('commentaire', $materiel->commentaire) }}</textarea>
                     </div>
 
-                    <p class="text-sm text-gray-500">Pour changer l'emplacement, le statut ou l'utilisateur affecte, utilisez les actions dediees (deplacer / attribuer / retour en stock) depuis la fiche du materiel.</p>
+                    <p class="text-sm text-gray-500">Pour changer l'emplacement, le statut ou l'utilisateur affecté, utilisez les actions dédiées (déplacer / attribuer / retour en stock) depuis la fiche du matériel.</p>
 
                     <div class="flex items-center gap-4">
                         <x-primary-button>{{ __('Enregistrer') }}</x-primary-button>

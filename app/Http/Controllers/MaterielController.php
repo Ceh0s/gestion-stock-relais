@@ -65,7 +65,7 @@ class MaterielController extends Controller
             return back()->withErrors($e->errors())->withInput();
         }
 
-        return redirect()->route('materiels.show', $materiel)->with('status', 'Materiel ajoute avec succes.');
+        return redirect()->route('materiels.show', $materiel)->with('status', 'Matériel ajouté avec succès.');
     }
 
     public function show(Materiel $materiel): View
@@ -103,7 +103,7 @@ class MaterielController extends Controller
 
         $materiel->update($data);
 
-        return redirect()->route('materiels.show', $materiel)->with('status', 'Materiel mis a jour.');
+        return redirect()->route('materiels.show', $materiel)->with('status', 'Matériel mis à jour.');
     }
 
     public function deplacer(Request $request, Materiel $materiel): RedirectResponse
@@ -120,7 +120,7 @@ class MaterielController extends Controller
             return back()->withErrors($e->errors());
         }
 
-        return redirect()->route('materiels.show', $materiel)->with('status', 'Materiel deplace avec succes.');
+        return redirect()->route('materiels.show', $materiel)->with('status', 'Matériel déplacé avec succès.');
     }
 
     public function attribuer(Request $request, Materiel $materiel): RedirectResponse
@@ -136,7 +136,7 @@ class MaterielController extends Controller
             return back()->withErrors($e->errors());
         }
 
-        return redirect()->route('materiels.show', $materiel)->with('status', 'Materiel attribue avec succes.');
+        return redirect()->route('materiels.show', $materiel)->with('status', 'Matériel attribué avec succès.');
     }
 
     public function retournerEnStock(Request $request, Materiel $materiel): RedirectResponse
@@ -153,7 +153,7 @@ class MaterielController extends Controller
             return back()->withErrors($e->errors());
         }
 
-        return redirect()->route('materiels.show', $materiel)->with('status', 'Materiel retourne en stock avec succes.');
+        return redirect()->route('materiels.show', $materiel)->with('status', 'Matériel retourné en stock avec succès.');
     }
 
     public function mettreEnReparation(Request $request, Materiel $materiel): RedirectResponse
@@ -164,6 +164,6 @@ class MaterielController extends Controller
 
         $this->materiels->mettreEnReparation($materiel, $data['commentaire'] ?? null, $request->user());
 
-        return redirect()->route('materiels.show', $materiel)->with('status', 'Materiel envoye en reparation.');
+        return redirect()->route('materiels.show', $materiel)->with('status', 'Matériel envoyé en réparation.');
     }
 }

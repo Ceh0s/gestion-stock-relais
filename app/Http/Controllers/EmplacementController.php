@@ -34,12 +34,12 @@ class EmplacementController extends Controller
 
         $exists = Emplacement::where('site_id', $data['site_id'])->where('nom', $data['nom'])->exists();
         if ($exists) {
-            return back()->withErrors(['nom' => 'Cet emplacement existe deja pour ce site.'])->withInput();
+            return back()->withErrors(['nom' => 'Cet emplacement existe déjà pour ce site.'])->withInput();
         }
 
         Emplacement::create($data);
 
-        return redirect()->route('emplacements.index')->with('status', 'Emplacement cree avec succes.');
+        return redirect()->route('emplacements.index')->with('status', 'Emplacement créé avec succès.');
     }
 
     public function edit(Emplacement $emplacement): View
@@ -61,6 +61,6 @@ class EmplacementController extends Controller
 
         $emplacement->update($data);
 
-        return redirect()->route('emplacements.index')->with('status', 'Emplacement mis a jour.');
+        return redirect()->route('emplacements.index')->with('status', 'Emplacement mis à jour.');
     }
 }

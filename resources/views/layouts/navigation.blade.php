@@ -13,7 +13,7 @@
                         {{ __('Tableau de bord') }}
                     </x-nav-link>
                     <x-nav-link :href="route('materiels.index')" :active="request()->routeIs('materiels.*')">
-                        {{ __('Materiels') }}
+                        {{ __('Matériels') }}
                     </x-nav-link>
                     @if (Auth::user()->peutGerer())
                         <x-nav-link :href="route('sites.index')" :active="request()->routeIs('sites.*')">
@@ -59,7 +59,7 @@
                             <x-dropdown-link :href="route('logout')"
                                     onclick="event.preventDefault();
                                                 this.closest('form').submit();">
-                                {{ __('Deconnexion') }}
+                                {{ __('Déconnexion') }}
                             </x-dropdown-link>
                         </form>
                     </x-slot>
@@ -83,7 +83,7 @@
                 {{ __('Tableau de bord') }}
             </x-responsive-nav-link>
             <x-responsive-nav-link :href="route('materiels.index')" :active="request()->routeIs('materiels.*')">
-                {{ __('Materiels') }}
+                {{ __('Matériels') }}
             </x-responsive-nav-link>
             @if (Auth::user()->peutGerer())
                 <x-responsive-nav-link :href="route('sites.index')" :active="request()->routeIs('sites.*')">
@@ -120,7 +120,7 @@
                     <x-responsive-nav-link :href="route('logout')"
                             onclick="event.preventDefault();
                                         this.closest('form').submit();">
-                        {{ __('Deconnexion') }}
+                        {{ __('Déconnexion') }}
                     </x-responsive-nav-link>
                 </form>
             </div>

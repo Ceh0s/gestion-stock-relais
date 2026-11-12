@@ -27,7 +27,7 @@
                 <p class="text-sm text-gray-600 mb-4">
                     Le fichier doit contenir au minimum les colonnes : <code>reference, type_materiel, marque, modele, condition_stock, statut, site, emplacement</code>.
                     Colonnes facultatives : <code>numero_serie, date_acquisition, date_fin_garantie, commentaire</code>.
-                    En cas d'erreur sur une seule ligne, l'import complet est rejete (mode strict).
+                    En cas d'erreur sur une seule ligne, l'import complet est rejeté (mode strict).
                 </p>
 
                 <form method="POST" action="{{ route('imports.store') }}" enctype="multipart/form-data" class="space-y-4">
@@ -45,7 +45,7 @@
                         <tr class="text-left text-xs text-gray-500 uppercase">
                             <th class="py-2 pr-4">Fichier</th>
                             <th class="py-2 pr-4">Lignes</th>
-                            <th class="py-2 pr-4">Importees</th>
+                            <th class="py-2 pr-4">Importées</th>
                             <th class="py-2 pr-4">Erreurs</th>
                             <th class="py-2 pr-4">Statut</th>
                             <th class="py-2 pr-4">Par</th>

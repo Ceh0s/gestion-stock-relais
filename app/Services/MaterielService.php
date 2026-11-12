@@ -16,14 +16,14 @@ class MaterielService
         $data['reference'] = strtoupper(trim($data['reference']));
 
         if (Materiel::where('reference', $data['reference'])->exists()) {
-            throw ValidationException::withMessages(['reference' => 'Cette reference existe deja.']);
+            throw ValidationException::withMessages(['reference' => 'Cette référence existe déjà.']);
         }
 
         if (! empty($data['numero_serie'])) {
             $data['numero_serie'] = trim($data['numero_serie']);
 
             if (Materiel::where('numero_serie', $data['numero_serie'])->exists()) {
-                throw ValidationException::withMessages(['numero_serie' => 'Ce numero de serie existe deja.']);
+                throw ValidationException::withMessages(['numero_serie' => 'Ce numéro de série existe déjà.']);
             }
         }
 
@@ -33,7 +33,7 @@ class MaterielService
         }
 
         if (($data['statut'] ?? 'disponible') === 'attribue' && empty($data['utilisateur_id'])) {
-            throw ValidationException::withMessages(['utilisateur_id' => 'Un utilisateur doit etre selectionne pour un materiel attribue.']);
+            throw ValidationException::withMessages(['utilisateur_id' => 'Un utilisateur doit être sélectionné pour un matériel attribué.']);
         }
 
         return DB::transaction(function () use ($data) {
@@ -49,7 +49,7 @@ class MaterielService
         }
 
         if ($materiel->emplacement_id === $nouvelEmplacement->id) {
-            throw ValidationException::withMessages(['emplacement_id' => 'Le materiel est deja a cet emplacement.']);
+            throw ValidationException::withMessages(['emplacement_id' => 'Le matériel est déjà à cet emplacement.']);
         }
 
         return DB::transaction(function () use ($materiel, $nouvelEmplacement, $motif, $commentaire, $acteur) {

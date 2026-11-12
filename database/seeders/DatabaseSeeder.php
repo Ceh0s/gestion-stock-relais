@@ -18,35 +18,35 @@ class DatabaseSeeder extends Seeder
             'service' => 'Direction', 'role' => 'administrateur', 'password' => Hash::make('password'),
         ]);
         User::create([
-            'prenom' => 'Bruno', 'nom' => 'Lefevre', 'email' => 'gestionnaire@gestion-stock.local',
+            'prenom' => 'Bruno', 'nom' => 'Lefèvre', 'email' => 'gestionnaire@gestion-stock.local',
             'service' => 'Informatique', 'role' => 'gestionnaire_stock', 'password' => Hash::make('password'),
         ]);
         User::create([
-            'prenom' => 'Chloe', 'nom' => 'Dubois', 'email' => 'technicien@gestion-stock.local',
+            'prenom' => 'Chloé', 'nom' => 'Dubois', 'email' => 'technicien@gestion-stock.local',
             'service' => 'Informatique', 'role' => 'technicien', 'password' => Hash::make('password'),
         ]);
         User::create([
             'prenom' => 'David', 'nom' => 'Roux', 'email' => 'consultation@gestion-stock.local',
-            'service' => 'Comptabilite', 'role' => 'consultation', 'password' => Hash::make('password'),
+            'service' => 'Comptabilité', 'role' => 'consultation', 'password' => Hash::make('password'),
         ]);
         User::create([
             'prenom' => 'Jean', 'nom' => 'Dupont', 'email' => 'jean.dupont@gestion-stock.local',
-            'service' => 'Comptabilite', 'role' => 'consultation', 'password' => Hash::make('password'),
+            'service' => 'Comptabilité', 'role' => 'consultation', 'password' => Hash::make('password'),
         ]);
         $auditeur = User::create([
-            'prenom' => 'Elise', 'nom' => 'Perrin', 'email' => 'auditeur@gestion-stock.local',
+            'prenom' => 'Élise', 'nom' => 'Perrin', 'email' => 'auditeur@gestion-stock.local',
             'service' => 'Direction', 'role' => 'auditeur', 'password' => Hash::make('password'),
         ]);
 
-        $site1 = Site::create(['nom' => 'Site 1', 'adresse' => 'Batiment administratif', 'responsable' => 'Alice Martin']);
-        $site2 = Site::create(['nom' => 'Site 2', 'adresse' => 'Entrepot logistique', 'responsable' => 'Bruno Lefevre']);
-        $site3 = Site::create(['nom' => 'Site 3', 'adresse' => 'Agence commerciale', 'responsable' => 'Chloe Dubois']);
+        $site1 = Site::create(['nom' => 'Site 1', 'adresse' => 'Bâtiment administratif', 'responsable' => 'Alice Martin']);
+        $site2 = Site::create(['nom' => 'Site 2', 'adresse' => 'Entrepôt logistique', 'responsable' => 'Bruno Lefèvre']);
+        $site3 = Site::create(['nom' => 'Site 3', 'adresse' => 'Agence commerciale', 'responsable' => 'Chloé Dubois']);
 
-        $e1 = Emplacement::create(['site_id' => $site1->id, 'nom' => 'Reserve informatique - Armoire A - Etagere 2']);
+        $e1 = Emplacement::create(['site_id' => $site1->id, 'nom' => 'Réserve informatique - Armoire A - Étagère 2']);
         $e2 = Emplacement::create(['site_id' => $site1->id, 'nom' => 'Bureau du responsable']);
-        $e3 = Emplacement::create(['site_id' => $site2->id, 'nom' => 'Reserve - Armoire C']);
-        $e4 = Emplacement::create(['site_id' => $site2->id, 'nom' => 'Atelier de reparation']);
-        $e5 = Emplacement::create(['site_id' => $site3->id, 'nom' => 'Reserve informatique']);
+        $e3 = Emplacement::create(['site_id' => $site2->id, 'nom' => 'Réserve - Armoire C']);
+        $e4 = Emplacement::create(['site_id' => $site2->id, 'nom' => 'Atelier de réparation']);
+        $e5 = Emplacement::create(['site_id' => $site3->id, 'nom' => 'Réserve informatique']);
 
         Materiel::create([
             'reference' => 'PC-000245', 'type_materiel' => 'Ordinateur portable', 'marque' => 'Dell', 'modele' => 'Latitude 5420',
@@ -65,12 +65,12 @@ class DatabaseSeeder extends Seeder
             'emplacement_id' => $e4->id,
         ]);
         Materiel::create([
-            'reference' => 'MON-000118', 'type_materiel' => 'Ecran', 'marque' => 'HP', 'modele' => 'E243',
+            'reference' => 'MON-000118', 'type_materiel' => 'Écran', 'marque' => 'HP', 'modele' => 'E243',
             'numero_serie' => 'DEF456', 'condition_stock' => 'occasion', 'statut' => 'disponible',
             'emplacement_id' => $e5->id,
         ]);
         Materiel::create([
-            'reference' => 'TEL-000050', 'type_materiel' => 'Telephone', 'marque' => 'Samsung', 'modele' => 'Galaxy A54',
+            'reference' => 'TEL-000050', 'type_materiel' => 'Téléphone', 'marque' => 'Samsung', 'modele' => 'Galaxy A54',
             'condition_stock' => 'neuf', 'statut' => 'disponible', 'emplacement_id' => $e2->id,
         ]);
     }

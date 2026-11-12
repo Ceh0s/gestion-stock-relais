@@ -87,13 +87,13 @@ class MaterielsImport implements ToCollection, WithHeadingRow
         }
 
         if (Materiel::where('reference', $reference)->exists() || isset($referencesVues[$reference])) {
-            $erreurs[] = "Ligne {$numeroLigne} : reference \"{$reference}\" en doublon.";
+            $erreurs[] = "Ligne {$numeroLigne} : référence \"{$reference}\" en doublon.";
         }
         $referencesVues[$reference] = true;
 
         if ($numeroSerie) {
             if (Materiel::where('numero_serie', $numeroSerie)->exists() || isset($numerosSerieVus[$numeroSerie])) {
-                $erreurs[] = "Ligne {$numeroLigne} : numero de serie \"{$numeroSerie}\" en doublon.";
+                $erreurs[] = "Ligne {$numeroLigne} : numéro de série \"{$numeroSerie}\" en doublon.";
             }
             $numerosSerieVus[$numeroSerie] = true;
         }

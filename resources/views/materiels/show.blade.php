@@ -28,11 +28,11 @@
 
             <div class="bg-white shadow-sm rounded-lg p-6 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 <div><span class="text-gray-500">Type :</span> {{ $materiel->type_materiel }}</div>
-                <div><span class="text-gray-500">Numero de serie :</span> {{ $materiel->numero_serie ?? '—' }}</div>
+                <div><span class="text-gray-500">Numéro de série :</span> {{ $materiel->numero_serie ?? '—' }}</div>
                 <div><span class="text-gray-500">Statut :</span> <span class="font-medium">{{ $materiel->statut }}</span></div>
                 <div><span class="text-gray-500">Stock :</span> {{ $materiel->condition_stock }}</div>
                 <div><span class="text-gray-500">Site / Emplacement :</span> {{ $materiel->emplacement?->libelle() ?? '—' }}</div>
-                <div><span class="text-gray-500">Utilisateur affecte :</span> {{ $materiel->utilisateur?->nomComplet() ?? '—' }}</div>
+                <div><span class="text-gray-500">Utilisateur affecté :</span> {{ $materiel->utilisateur?->nomComplet() ?? '—' }}</div>
                 <div><span class="text-gray-500">Date d'acquisition :</span> {{ $materiel->date_acquisition?->format('d/m/Y') ?? '—' }}</div>
                 <div><span class="text-gray-500">Fin de garantie :</span> {{ $materiel->date_fin_garantie?->format('d/m/Y') ?? '—' }}</div>
                 <div class="sm:col-span-2"><span class="text-gray-500">Commentaire :</span> {{ $materiel->commentaire ?? '—' }}</div>
@@ -42,7 +42,7 @@
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     @if (Auth::user()->peutGerer() || Auth::user()->role === 'technicien')
                         <div class="bg-white shadow-sm rounded-lg p-6">
-                            <h3 class="font-semibold text-gray-800 mb-4">Deplacer</h3>
+                            <h3 class="font-semibold text-gray-800 mb-4">Déplacer</h3>
                             <form method="POST" action="{{ route('materiels.deplacer', $materiel) }}" class="space-y-3">
                                 @csrf
                                 <select name="emplacement_id" class="block w-full border-gray-300 rounded-md shadow-sm text-sm" required>
@@ -52,7 +52,7 @@
                                     @endforeach
                                 </select>
                                 <input type="text" name="motif" placeholder="Motif" class="block w-full border-gray-300 rounded-md shadow-sm text-sm">
-                                <button class="inline-flex items-center px-3 py-1.5 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700">Deplacer</button>
+                                <button class="inline-flex items-center px-3 py-1.5 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700">Déplacer</button>
                             </form>
                         </div>
                     @endif
@@ -96,11 +96,11 @@
                         </div>
 
                         <div class="bg-white shadow-sm rounded-lg p-6">
-                            <h3 class="font-semibold text-gray-800 mb-4">Mettre en reparation</h3>
+                            <h3 class="font-semibold text-gray-800 mb-4">Mettre en réparation</h3>
                             <form method="POST" action="{{ route('materiels.reparation', $materiel) }}" class="space-y-3">
                                 @csrf
                                 <input type="text" name="commentaire" placeholder="Diagnostic / commentaire" class="block w-full border-gray-300 rounded-md shadow-sm text-sm">
-                                <button class="inline-flex items-center px-3 py-1.5 bg-amber-600 text-white text-sm font-medium rounded-md hover:bg-amber-700">Envoyer en reparation</button>
+                                <button class="inline-flex items-center px-3 py-1.5 bg-amber-600 text-white text-sm font-medium rounded-md hover:bg-amber-700">Envoyer en réparation</button>
                             </form>
                         </div>
                     @endif
@@ -149,7 +149,7 @@
                                 <td class="py-2 pr-4">{{ $mouvement->utilisateurConnecte?->nomComplet() ?? '—' }}</td>
                             </tr>
                         @empty
-                            <tr><td colspan="6" class="py-4 text-center text-gray-500">Aucun mouvement enregistre.</td></tr>
+                            <tr><td colspan="6" class="py-4 text-center text-gray-500">Aucun mouvement enregistré.</td></tr>
                         @endforelse
                     </tbody>
                 </table>

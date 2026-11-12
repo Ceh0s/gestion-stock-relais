@@ -31,7 +31,7 @@ class SiteController extends Controller
 
         Site::create($data);
 
-        return redirect()->route('sites.index')->with('status', 'Site cree avec succes.');
+        return redirect()->route('sites.index')->with('status', 'Site créé avec succès.');
     }
 
     public function edit(Site $site): View
@@ -51,6 +51,6 @@ class SiteController extends Controller
 
         $site->update($data);
 
-        return redirect()->route('sites.index')->with('status', 'Site mis a jour.');
+        return redirect()->route('sites.index')->with('status', 'Site mis à jour.');
     }
 }

@@ -11,7 +11,7 @@
                     @method('put')
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <x-input-label for="prenom" value="Prenom" />
+                            <x-input-label for="prenom" value="Prénom" />
                             <x-text-input id="prenom" name="prenom" class="mt-1 block w-full" value="{{ old('prenom', $user->prenom) }}" required autofocus />
                             <x-input-error class="mt-2" :messages="$errors->get('prenom')" />
                         </div>
@@ -28,7 +28,7 @@
                     </div>
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <x-input-label for="telephone" value="Telephone" />
+                            <x-input-label for="telephone" value="Téléphone" />
                             <x-text-input id="telephone" name="telephone" class="mt-1 block w-full" value="{{ old('telephone', $user->telephone) }}" />
                         </div>
                         <div>
@@ -37,7 +37,7 @@
                         </div>
                     </div>
                     <div>
-                        <x-input-label for="role" value="Role" />
+                        <x-input-label for="role" value="Rôle" />
                         <select id="role" name="role" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                             @foreach ($roles as $role)
                                 <option value="{{ $role }}" @selected(old('role', $user->role) === $role)>{{ $role }}</option>

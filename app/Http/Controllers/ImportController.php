@@ -40,10 +40,10 @@ class ImportController extends Controller
         ]);
 
         if ($import->erreurs) {
-            return back()->withErrors(['fichier' => 'Import rejete : '.count($import->erreurs).' erreur(s) detectee(s).'])
+            return back()->withErrors(['fichier' => 'Import rejeté : '.count($import->erreurs).' erreur(s) détectée(s).'])
                 ->with('erreursImport', $import->erreurs);
         }
 
-        return redirect()->route('imports.create')->with('status', "{$import->nombreImportees} materiel(s) importe(s) avec succes.");
+        return redirect()->route('imports.create')->with('status', "{$import->nombreImportees} matériel(s) importé(s) avec succès.");
     }
 }

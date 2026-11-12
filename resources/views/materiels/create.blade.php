@@ -1,6 +1,6 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('Ajouter un materiel') }}</h2>
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">{{ __('Ajouter un matériel') }}</h2>
     </x-slot>
 
     <div class="py-12">
@@ -11,12 +11,12 @@
 
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
-                            <x-input-label for="reference" value="Numero d'inventaire" />
+                            <x-input-label for="reference" value="Numéro d'inventaire" />
                             <x-text-input id="reference" name="reference" class="mt-1 block w-full" value="{{ old('reference') }}" required autofocus />
                             <x-input-error class="mt-2" :messages="$errors->get('reference')" />
                         </div>
                         <div>
-                            <x-input-label for="type_materiel" value="Type de materiel" />
+                            <x-input-label for="type_materiel" value="Type de matériel" />
                             <x-text-input id="type_materiel" name="type_materiel" class="mt-1 block w-full" value="{{ old('type_materiel') }}" required />
                             <x-input-error class="mt-2" :messages="$errors->get('type_materiel')" />
                         </div>
@@ -26,12 +26,12 @@
                             <x-input-error class="mt-2" :messages="$errors->get('marque')" />
                         </div>
                         <div>
-                            <x-input-label for="modele" value="Modele" />
+                            <x-input-label for="modele" value="Modèle" />
                             <x-text-input id="modele" name="modele" class="mt-1 block w-full" value="{{ old('modele') }}" required />
                             <x-input-error class="mt-2" :messages="$errors->get('modele')" />
                         </div>
                         <div>
-                            <x-input-label for="numero_serie" value="Numero de serie (optionnel)" />
+                            <x-input-label for="numero_serie" value="Numéro de série (optionnel)" />
                             <x-text-input id="numero_serie" name="numero_serie" class="mt-1 block w-full" value="{{ old('numero_serie') }}" />
                             <x-input-error class="mt-2" :messages="$errors->get('numero_serie')" />
                         </div>
@@ -56,7 +56,7 @@
                         <div>
                             <x-input-label for="emplacement_id" value="Emplacement" />
                             <select id="emplacement_id" name="emplacement_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
-                                <option value="">-- Selectionner --</option>
+                                <option value="">-- Sélectionner --</option>
                                 @foreach ($emplacements as $emplacement)
                                     <option value="{{ $emplacement->id }}" @selected((int) old('emplacement_id') === $emplacement->id)>{{ $emplacement->libelle() }}</option>
                                 @endforeach
@@ -64,7 +64,7 @@
                             <x-input-error class="mt-2" :messages="$errors->get('emplacement_id')" />
                         </div>
                         <div>
-                            <x-input-label for="utilisateur_id" value="Utilisateur attribue (si statut attribue)" />
+                            <x-input-label for="utilisateur_id" value="Utilisateur attribué (si statut attribué)" />
                             <select id="utilisateur_id" name="utilisateur_id" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                                 <option value="">-- Aucun --</option>
                                 @foreach ($utilisateurs as $utilisateur)

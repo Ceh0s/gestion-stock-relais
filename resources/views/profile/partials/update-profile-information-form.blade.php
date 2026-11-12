@@ -5,7 +5,7 @@
         </h2>
 
         <p class="mt-1 text-sm text-gray-600">
-            {{ __('Mettez a jour vos informations personnelles et votre adresse email.') }}
+            {{ __('Mettez à jour vos informations personnelles et votre adresse email.') }}
         </p>
     </header>
 
@@ -15,7 +15,7 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-                <x-input-label for="prenom" :value="__('Prenom')" />
+                <x-input-label for="prenom" :value="__('Prénom')" />
                 <x-text-input id="prenom" name="prenom" type="text" class="mt-1 block w-full" :value="old('prenom', $user->prenom)" required autofocus />
                 <x-input-error class="mt-2" :messages="$errors->get('prenom')" />
             </div>
@@ -35,7 +35,7 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-                <x-input-label for="telephone" :value="__('Telephone')" />
+                <x-input-label for="telephone" :value="__('Téléphone')" />
                 <x-text-input id="telephone" name="telephone" type="text" class="mt-1 block w-full" :value="old('telephone', $user->telephone)" />
                 <x-input-error class="mt-2" :messages="$errors->get('telephone')" />
             </div>
@@ -57,7 +57,7 @@
                     x-transition
                     x-init="setTimeout(() => show = false, 2000)"
                     class="text-sm text-gray-600"
-                >{{ __('Enregistre.') }}</p>
+                >{{ __('Enregistré.') }}</p>
             @endif
         </div>
     </form>

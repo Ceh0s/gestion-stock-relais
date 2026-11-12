@@ -40,7 +40,7 @@ class UserController extends Controller
         $data['password'] = Hash::make($data['password']);
         User::create($data);
 
-        return redirect()->route('users.index')->with('status', 'Utilisateur cree avec succes.');
+        return redirect()->route('users.index')->with('status', 'Utilisateur créé avec succès.');
     }
 
     public function edit(User $user): View
@@ -71,6 +71,6 @@ class UserController extends Controller
 
         $user->update($data);
 
-        return redirect()->route('users.index')->with('status', 'Utilisateur mis a jour.');
+        return redirect()->route('users.index')->with('status', 'Utilisateur mis à jour.');
     }
 }

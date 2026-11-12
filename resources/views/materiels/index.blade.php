@@ -2,12 +2,12 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                {{ __('Materiels') }}
+                {{ __('Matériels') }}
             </h2>
             <div class="space-x-2">
                 @if (Auth::user()->peutGerer())
                     <a href="{{ route('materiels.create') }}" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700">
-                        {{ __('Ajouter un materiel') }}
+                        {{ __('Ajouter un matériel') }}
                     </a>
                 @endif
                 <a href="{{ route('export.materiels', $criteres) }}" class="inline-flex items-center px-4 py-2 bg-gray-100 text-gray-700 text-sm font-medium rounded-md hover:bg-gray-200">
@@ -22,7 +22,7 @@
 
             <form method="GET" action="{{ route('materiels.index') }}" class="bg-white shadow-sm rounded-lg p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
                 <div class="lg:col-span-2">
-                    <x-input-label for="terme" value="Recherche (reference, numero de serie, marque, modele...)" />
+                    <x-input-label for="terme" value="Recherche (référence, numéro de série, marque, modèle...)" />
                     <x-text-input id="terme" name="terme" class="mt-1 block w-full" value="{{ $criteres['terme'] ?? '' }}" />
                 </div>
                 <div>
@@ -56,7 +56,7 @@
                     <button type="submit" class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700">
                         Rechercher
                     </button>
-                    <a href="{{ route('materiels.index') }}" class="ms-2 text-sm text-gray-500 hover:underline">Reinitialiser</a>
+                    <a href="{{ route('materiels.index') }}" class="ms-2 text-sm text-gray-500 hover:underline">Réinitialiser</a>
                 </div>
             </form>
 
@@ -65,7 +65,7 @@
                     <thead class="bg-gray-50">
                         <tr>
                             <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Inventaire</th>
-                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Materiel</th>
+                            <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Matériel</th>
                             <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Statut</th>
                             <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Stock</th>
                             <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Site</th>
@@ -86,7 +86,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">Aucun resultat.</td>
+                                <td colspan="6" class="px-4 py-6 text-center text-sm text-gray-500">Aucun résultat.</td>
                             </tr>
                         @endforelse
                     </tbody>
