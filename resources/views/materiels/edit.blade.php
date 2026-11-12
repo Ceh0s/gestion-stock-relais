@@ -39,7 +39,7 @@
                             <x-input-label for="condition_stock" value="Type de stock" />
                             <select id="condition_stock" name="condition_stock" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                                 @foreach ($conditions as $c)
-                                    <option value="{{ $c }}" @selected(old('condition_stock', $materiel->condition_stock) === $c)>{{ $c }}</option>
+                                    <option value="{{ $c }}" @selected(old('condition_stock', $materiel->condition_stock) === $c)>{{ \App\Models\Materiel::libelleCondition($c) }}</option>
                                 @endforeach
                             </select>
                         </div>

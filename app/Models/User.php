@@ -17,6 +17,20 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
+    // Texte affiché pour chaque rôle (la valeur stockée en base reste la clé).
+    public const LIBELLES_ROLES = [
+        'administrateur' => 'Administrateur',
+        'gestionnaire_stock' => 'Gestionnaire de stock',
+        'technicien' => 'Technicien',
+        'consultation' => 'Consultation',
+        'auditeur' => 'Auditeur',
+    ];
+
+    public static function libelleRole(?string $role): ?string
+    {
+        return $role === null ? null : (self::LIBELLES_ROLES[$role] ?? $role);
+    }
+
     protected function casts(): array
     {
         return [

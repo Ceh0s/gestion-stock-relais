@@ -39,7 +39,7 @@
                     <select id="condition_stock" name="condition_stock" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                         <option value="">Toutes</option>
                         @foreach ($conditions as $c)
-                            <option value="{{ $c }}" @selected(($criteres['condition_stock'] ?? null) === $c)>{{ $c }}</option>
+                            <option value="{{ $c }}" @selected(($criteres['condition_stock'] ?? null) === $c)>{{ \App\Models\Materiel::libelleCondition($c) }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -48,7 +48,7 @@
                     <select id="statut" name="statut" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm">
                         <option value="">Tous</option>
                         @foreach ($statuts as $s)
-                            <option value="{{ $s }}" @selected(($criteres['statut'] ?? null) === $s)>{{ $s }}</option>
+                            <option value="{{ $s }}" @selected(($criteres['statut'] ?? null) === $s)>{{ \App\Models\Materiel::libelleStatut($s) }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -79,8 +79,8 @@
                                     <a href="{{ route('materiels.show', $materiel) }}" class="text-indigo-600 hover:underline font-mono">{{ $materiel->reference }}</a>
                                 </td>
                                 <td class="px-4 py-2 text-sm">{{ $materiel->marque }} {{ $materiel->modele }}</td>
-                                <td class="px-4 py-2 text-sm">{{ $materiel->statut }}</td>
-                                <td class="px-4 py-2 text-sm">{{ $materiel->condition_stock }}</td>
+                                <td class="px-4 py-2 text-sm">{{ \App\Models\Materiel::libelleStatut($materiel->statut) }}</td>
+                                <td class="px-4 py-2 text-sm">{{ \App\Models\Materiel::libelleCondition($materiel->condition_stock) }}</td>
                                 <td class="px-4 py-2 text-sm">{{ $materiel->emplacement?->site?->nom }}</td>
                                 <td class="px-4 py-2 text-sm">{{ $materiel->emplacement?->nom }}</td>
                             </tr>

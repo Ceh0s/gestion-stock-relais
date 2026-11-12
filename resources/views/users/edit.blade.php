@@ -40,7 +40,7 @@
                         <x-input-label for="role" value="Rôle" />
                         <select id="role" name="role" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm" required>
                             @foreach ($roles as $role)
-                                <option value="{{ $role }}" @selected(old('role', $user->role) === $role)>{{ $role }}</option>
+                                <option value="{{ $role }}" @selected(old('role', $user->role) === $role)>{{ \App\Models\User::libelleRole($role) }}</option>
                             @endforeach
                         </select>
                         <x-input-error class="mt-2" :messages="$errors->get('role')" />

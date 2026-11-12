@@ -18,6 +18,19 @@ class Mouvement extends Model
 
     public $timestamps = false;
 
+    // Texte affiché pour les motifs écrits automatiquement par MaterielService.
+    // Un motif saisi librement (déplacement) n'est pas dans la table et s'affiche tel quel.
+    public const LIBELLES_MOTIFS = [
+        'attribution' => 'Attribution',
+        'retour_en_stock' => 'Retour en stock',
+        'mise_en_reparation' => 'Mise en réparation',
+    ];
+
+    public static function libelleMotif(?string $motif): ?string
+    {
+        return $motif === null ? null : (self::LIBELLES_MOTIFS[$motif] ?? $motif);
+    }
+
     protected $attributes = [
         'created_at' => null,
     ];

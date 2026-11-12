@@ -29,8 +29,8 @@
             <div class="bg-white shadow-sm rounded-lg p-6 grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
                 <div><span class="text-gray-500">Type :</span> {{ $materiel->type_materiel }}</div>
                 <div><span class="text-gray-500">Numéro de série :</span> {{ $materiel->numero_serie ?? '—' }}</div>
-                <div><span class="text-gray-500">Statut :</span> <span class="font-medium">{{ $materiel->statut }}</span></div>
-                <div><span class="text-gray-500">Stock :</span> {{ $materiel->condition_stock }}</div>
+                <div><span class="text-gray-500">Statut :</span> <span class="font-medium">{{ \App\Models\Materiel::libelleStatut($materiel->statut) }}</span></div>
+                <div><span class="text-gray-500">Stock :</span> {{ \App\Models\Materiel::libelleCondition($materiel->condition_stock) }}</div>
                 <div><span class="text-gray-500">Site / Emplacement :</span> {{ $materiel->emplacement?->libelle() ?? '—' }}</div>
                 <div><span class="text-gray-500">Utilisateur affecté :</span> {{ $materiel->utilisateur?->nomComplet() ?? '—' }}</div>
                 <div><span class="text-gray-500">Date d'acquisition :</span> {{ $materiel->date_acquisition?->format('d/m/Y') ?? '—' }}</div>
@@ -86,9 +86,9 @@
                                     @endforeach
                                 </select>
                                 <select name="statut" class="block w-full border-gray-300 rounded-md shadow-sm text-sm" required>
-                                    <option value="disponible">disponible</option>
-                                    <option value="reparation">reparation</option>
-                                    <option value="reforme">reforme</option>
+                                    <option value="disponible">{{ \App\Models\Materiel::libelleStatut('disponible') }}</option>
+                                    <option value="reparation">{{ \App\Models\Materiel::libelleStatut('reparation') }}</option>
+                                    <option value="reforme">{{ \App\Models\Materiel::libelleStatut('reforme') }}</option>
                                 </select>
                                 <input type="text" name="commentaire" placeholder="Commentaire" class="block w-full border-gray-300 rounded-md shadow-sm text-sm">
                                 <button class="inline-flex items-center px-3 py-1.5 bg-indigo-600 text-white text-sm font-medium rounded-md hover:bg-indigo-700">Retourner</button>
@@ -124,7 +124,7 @@
                         @forelse ($materiel->mouvements as $mouvement)
                             <tr>
                                 <td class="py-2 pr-4">{{ $mouvement->created_at->format('d/m/Y H:i') }}</td>
-                                <td class="py-2 pr-4">{{ $mouvement->motif }}</td>
+                                <td class="py-2 pr-4">{{ \App\Models\Mouvement::libelleMotif($mouvement->motif) ?? '—' }}</td>
                                 <td class="py-2 pr-4">
                                     @if ($mouvement->ancienEmplacement || $mouvement->nouvelEmplacement)
                                         {{ $mouvement->ancienEmplacement?->libelle() ?? '—' }} &rarr; {{ $mouvement->nouvelEmplacement?->libelle() ?? '—' }}
@@ -134,9 +134,9 @@
                                 </td>
                                 <td class="py-2 pr-4">
                                     @if ($mouvement->ancien_statut !== $mouvement->nouveau_statut)
-                                        {{ $mouvement->ancien_statut }} &rarr; {{ $mouvement->nouveau_statut }}
+                                        {{ \App\Models\Materiel::libelleStatut($mouvement->ancien_statut) ?? '—' }} &rarr; {{ \App\Models\Materiel::libelleStatut($mouvement->nouveau_statut) ?? '—' }}
                                     @else
-                                        {{ $mouvement->nouveau_statut }}
+                                        {{ \App\Models\Materiel::libelleStatut($mouvement->nouveau_statut) ?? '—' }}
                                     @endif
                                 </td>
                                 <td class="py-2 pr-4">

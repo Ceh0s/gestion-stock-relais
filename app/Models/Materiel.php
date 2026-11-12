@@ -24,6 +24,36 @@ class Materiel extends Model
         'reparation', 'perdu', 'reforme', 'a_verifier',
     ];
 
+    // Texte affiché pour chaque valeur. Les valeurs ci-dessus restent celles
+    // stockées en base, envoyées par les formulaires et lues dans les imports.
+    public const LIBELLES_STATUTS = [
+        'disponible' => 'Disponible',
+        'attribue' => 'Attribué',
+        'reserve' => 'Réservé',
+        'en_transit' => 'En transit',
+        'reparation' => 'En réparation',
+        'perdu' => 'Perdu',
+        'reforme' => 'Réformé',
+        'a_verifier' => 'À vérifier',
+    ];
+
+    public const LIBELLES_CONDITIONS = [
+        'neuf' => 'Neuf',
+        'occasion' => 'Occasion',
+        'reconditionne' => 'Reconditionné',
+        'retour' => 'Retour',
+    ];
+
+    public static function libelleStatut(?string $statut): ?string
+    {
+        return $statut === null ? null : (self::LIBELLES_STATUTS[$statut] ?? $statut);
+    }
+
+    public static function libelleCondition(?string $condition): ?string
+    {
+        return $condition === null ? null : (self::LIBELLES_CONDITIONS[$condition] ?? $condition);
+    }
+
     protected function casts(): array
     {
         return [

@@ -58,7 +58,7 @@
                                 <td class="py-2 pr-4">{{ $import->nombre_lignes }}</td>
                                 <td class="py-2 pr-4">{{ $import->nombre_importees }}</td>
                                 <td class="py-2 pr-4">{{ $import->nombre_erreurs }}</td>
-                                <td class="py-2 pr-4">{{ $import->statut }}</td>
+                                <td class="py-2 pr-4">{{ \App\Models\Import::libelleStatut($import->statut) }}</td>
                                 <td class="py-2 pr-4">{{ $import->utilisateur?->nomComplet() ?? '—' }}</td>
                             </tr>
                         @empty

@@ -32,7 +32,7 @@
                                 <td class="px-4 py-2 text-sm font-medium">{{ $user->nomComplet() }}</td>
                                 <td class="px-4 py-2 text-sm">{{ $user->email }}</td>
                                 <td class="px-4 py-2 text-sm">{{ $user->service ?? '—' }}</td>
-                                <td class="px-4 py-2 text-sm">{{ $user->role }}</td>
+                                <td class="px-4 py-2 text-sm">{{ \App\Models\User::libelleRole($user->role) }}</td>
                                 <td class="px-4 py-2 text-sm">{{ $user->actif ? 'Oui' : 'Non' }}</td>
                                 <td class="px-4 py-2 text-sm text-right">
                                     <a href="{{ route('users.edit', $user) }}" class="text-indigo-600 hover:underline">Modifier</a>

@@ -53,7 +53,7 @@
                                     </a>
                                     <span class="text-gray-500">{{ $mouvement->created_at->diffForHumans() }}</span>
                                 </div>
-                                <div class="text-gray-500">{{ $mouvement->motif }} par {{ $mouvement->utilisateurConnecte?->nomComplet() ?? 'système' }}</div>
+                                <div class="text-gray-500">{{ \App\Models\Mouvement::libelleMotif($mouvement->motif) }} par {{ $mouvement->utilisateurConnecte?->nomComplet() ?? 'système' }}</div>
                             </li>
                         @empty
                             <li class="py-2 text-sm text-gray-500">Aucun mouvement.</li>

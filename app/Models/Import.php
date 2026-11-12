@@ -12,6 +12,20 @@ class Import extends Model
 {
     use HasFactory;
 
+    // Texte affiché pour chaque statut d'import (la valeur stockée en base reste la clé).
+    public const LIBELLES_STATUTS = [
+        'en_attente' => 'En attente',
+        'valide' => 'Validé',
+        'partiel' => 'Partiel',
+        'rejete' => 'Rejeté',
+        'termine' => 'Terminé',
+    ];
+
+    public static function libelleStatut(?string $statut): ?string
+    {
+        return $statut === null ? null : (self::LIBELLES_STATUTS[$statut] ?? $statut);
+    }
+
     protected function casts(): array
     {
         return [
