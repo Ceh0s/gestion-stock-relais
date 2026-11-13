@@ -48,16 +48,7 @@ Le depot GitHub est connecte directement a Plesk via l'extension **Laravel Toolk
 1. **Extension Laravel Toolkit** : installer/activer l'extension sur le domaine concerne, avec **PHP 8.4** selectionne comme version d'interpreteur.
 2. **Racine applicative** : pointer le "Document Root" vers le dossier `public/` du depot (Laravel Toolkit le fait automatiquement une fois le projet detecte).
 3. **Git** : dans l'onglet *Git* de Plesk, renseigner l'URL du depot GitHub (`git@github.com:<compte>/gestion-stock-relais.git` ou l'URL HTTPS avec un token d'acces personnel en remote `https://<token>@github.com/<compte>/gestion-stock-relais.git`), la branche de production (ex. `main`), puis activer le **deploiement automatique** a chaque push.
-4. **Actions de deploiement additionnelles** (executees automatiquement par Plesk apres chaque `git pull`, sans shell manuel) :
-   ```bash
-   composer install --no-dev --optimize-autoloader
-   npm ci
-   npm run build
-   php artisan migrate --force
-   php artisan config:cache
-   php artisan route:cache
-   php artisan view:cache
-   ```
+4. **Etapes de deploiement** (onglet *Deploiement* de Laravel Toolkit) : cocher les etapes 4 (Composer), 5 (npm) et 6 (*Executer le script de deploiement*). Le script de l'etape 6 est versionne dans [`deploy/plesk-deploy.sh`](deploy/plesk-deploy.sh) : copier son contenu dans *Modifier le script*. Il lance `migrate --force` puis reconstruit les caches (`optimize`). Les fichiers CSS/JS compiles de `public/build/` sont commites : lancer `npm run build` en local et commiter avant de deployer une modification du CSS ou du JS. **Apres toute modification de `deploy/plesk-deploy.sh`, recopier son contenu dans Plesk.**
 5. **Variables d'environnement** : dans Laravel Toolkit, renseigner les valeurs de production directement dans l'UI Plesk (qui genere le fichier `.env` sur le serveur) en se basant sur `.env.example`. Ne jamais committer de `.env` reel.
    - `APP_KEY` : generer une fois avec `php artisan key:generate --show` (en local) et coller la valeur, ou utiliser le bouton dedie de Laravel Toolkit.
    - `DB_*` : renseigner avec la base MySQL/MariaDB creee dans Plesk.
@@ -66,20 +57,15 @@ Le depot GitHub est connecte directement a Plesk via l'extension **Laravel Toolk
 
 A chaque nouveau commit pousse sur la branche de production, Plesk re-synchronise automatiquement le code et relance les actions de deploiement ci-dessus — aucune intervention SSH n'est requise.
 
-### Configuration actuelle du serveur (mode degrade)
+### Si le script de deploiement ne s'execute pas
 
-Le fonctionnement decrit ci-dessus est la cible du projet, mais il n'est pas actif sur le serveur actuel :
-
-- **Mode de deploiement : Manuel.** Le code n'est mis en ligne qu'au clic sur **Deployer** (onglet *Deploiement* de Laravel Toolkit).
-- **Etape 6 « Executer le script de deploiement » desactivee** (pas de droits pour l'activer, et le script n'est pas modifiable sans acces SSH). Plesk recupere le code et installe les dependances Composer/npm, mais **n'execute aucune commande `php artisan`**, donc ni `migrate` ni les caches. `npm run build` n'est pas lance non plus : les fichiers compiles de `public/build/` sont donc commites dans le depot, et il faut lancer `npm run build` en local puis commiter avant chaque deploiement qui modifie le CSS ou le JS.
-
-Apres chaque deploiement qui ajoute une migration (nouveau fichier dans `database/migrations/`), lancer a la main dans l'onglet **Artisan** de Laravel Toolkit :
+Si l'etape 6 est decochee, ou si le script est vide (la case est alors grisee), Plesk met le code en ligne sans lancer aucune commande `php artisan`. Les nouvelles tables ne sont pas creees, et les pages qui les lisent renvoient une erreur 500 (`Base table or view not found` dans `storage/logs/laravel.log`). Dans ce cas, lancer a la main dans l'onglet **Artisan** de Laravel Toolkit :
 
 ```bash
 migrate --force
 ```
 
-puis verifier avec `migrate:status` que toutes les migrations sont en « Ran ». Sans cela, les pages qui lisent les nouvelles tables renvoient une erreur 500 (`Base table or view not found` dans `storage/logs/laravel.log`).
+puis verifier avec `migrate:status` que toutes les migrations sont en « Ran ».
 
 En cas d'erreur 500 en production (`APP_DEBUG=false`, donc sans detail a l'ecran), recuperer `storage/logs/laravel.log` via le *Gestionnaire de fichiers* de Plesk ou le lien **Journaux** de Laravel Toolkit.
 
