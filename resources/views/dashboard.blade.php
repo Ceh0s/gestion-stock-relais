@@ -20,6 +20,13 @@
     <div class="py-12">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
+            @if ($sauvegardeEchouee)
+                <div class="bg-red-50 border border-red-200 text-red-700 text-sm rounded-md p-4">
+                    La dernière sauvegarde de la base a échoué.
+                    <a href="{{ route('sauvegardes.index') }}" class="font-medium underline">Voir les sauvegardes</a>
+                </div>
+            @endif
+
             {{-- Recherche accessible depuis la page d'accueil (cahier des charges §5). --}}
             <form method="GET" action="{{ route('materiels.index') }}" class="bg-white shadow-sm rounded-lg p-4 flex flex-col sm:flex-row gap-3">
                 <label for="recherche-accueil" class="sr-only">Rechercher un matériel</label>

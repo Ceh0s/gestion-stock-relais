@@ -7,6 +7,7 @@ use App\Http\Controllers\ImportController;
 use App\Http\Controllers\MaterielController;
 use App\Http\Controllers\ParametreController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SauvegardeController;
 use App\Http\Controllers\SiteController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -59,6 +60,11 @@ Route::middleware('auth')->group(function () {
         Route::resource('users', UserController::class)->except(['show', 'destroy']);
         Route::get('/parametres', [ParametreController::class, 'edit'])->name('parametres.edit');
         Route::put('/parametres', [ParametreController::class, 'update'])->name('parametres.update');
+
+        // Sauvegardes de la base (Algorithme §16).
+        Route::get('/sauvegardes', [SauvegardeController::class, 'index'])->name('sauvegardes.index');
+        Route::post('/sauvegardes', [SauvegardeController::class, 'store'])->name('sauvegardes.store');
+        Route::get('/sauvegardes/{sauvegarde}/telecharger', [SauvegardeController::class, 'download'])->name('sauvegardes.download');
 
         // Suppression définitive : uniquement ce qui n'a jamais servi (sinon on désactive).
         Route::delete('/sites/{site}', [SiteController::class, 'destroy'])->name('sites.destroy');

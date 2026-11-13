@@ -33,6 +33,9 @@
                         <x-nav-link :href="route('parametres.edit')" :active="request()->routeIs('parametres.*')">
                             {{ __('Paramètres') }}
                         </x-nav-link>
+                        <x-nav-link :href="route('sauvegardes.index')" :active="request()->routeIs('sauvegardes.*')">
+                            {{ __('Sauvegardes') }}
+                        </x-nav-link>
                     @endif
                 </div>
             </div>
@@ -105,6 +108,9 @@
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('parametres.edit')" :active="request()->routeIs('parametres.*')">
                     {{ __('Paramètres') }}
+                </x-responsive-nav-link>
+                <x-responsive-nav-link :href="route('sauvegardes.index')" :active="request()->routeIs('sauvegardes.*')">
+                    {{ __('Sauvegardes') }}
                 </x-responsive-nav-link>
             @endif
         </div>

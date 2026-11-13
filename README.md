@@ -83,10 +83,38 @@ puis verifier avec `migrate:status` que toutes les migrations sont en « Ran ».
 
 En cas d'erreur 500 en production (`APP_DEBUG=false`, donc sans detail a l'ecran), recuperer `storage/logs/laravel.log` via le *Gestionnaire de fichiers* de Plesk ou le lien **Journaux** de Laravel Toolkit.
 
+## Sauvegardes de la base
+
+Algorithme §16. Chaque sauvegarde fait un `mysqldump` complet, le compresse (`.sql.gz`), calcule son empreinte SHA-256, le copie vers un emplacement externe si un disque est configure, supprime les sauvegardes trop anciennes et s'inscrit dans le journal `sauvegardes`. En cas d'echec, les administrateurs actifs recoivent un mail et un bandeau rouge s'affiche sur leur tableau de bord. Le detail technique va dans `storage/logs/laravel.log`.
+
+- **Page** : menu *Sauvegardes* (administrateurs uniquement). Elle permet de lancer une sauvegarde, de voir le journal et de telecharger un fichier.
+- **Commande** : `php artisan sauvegarde:creer` (onglet *Artisan* de Laravel Toolkit en ligne).
+- **Automatique** : planifiee chaque nuit a 2 h dans `routes/console.php`. Elle ne s'execute que si le serveur appelle `php artisan schedule:run` chaque minute (tache planifiee Plesk ou planificateur de Laravel Toolkit).
+- **Fichiers** : `storage/app/private/sauvegardes/`, jamais servi par le web.
+- **Restauration de test** (§16 : « une sauvegarde doit etre restauree regulierement sur une base de test ») : `php artisan sauvegarde:verifier [fichier]` restaure la derniere sauvegarde reussie dans la base `SAUVEGARDE_TEST_DB_DATABASE`, puis compare le nombre de materiels, de mouvements et d'utilisateurs avec ceux enregistres au moment du dump. La commande refuse de restaurer dans la base principale.
+
+Variables (voir `.env.example`) : `SAUVEGARDE_MYSQLDUMP` / `SAUVEGARDE_MYSQL` (chemin des binaires s'ils ne sont pas dans le PATH), `SAUVEGARDE_CONSERVATION_JOURS` (30 par defaut ; la derniere sauvegarde reussie est toujours conservee), `SAUVEGARDE_DISQUE_EXTERNE` (nom d'un disque de `config/filesystems.php`), `SAUVEGARDE_TEST_DB_*`.
+
+En local, l'image Docker contient le client MariaDB. Pour tester une restauration :
+
+```bash
+docker compose exec db mariadb -uroot -proot -e "CREATE DATABASE IF NOT EXISTS gestion_stock_test; GRANT ALL ON gestion_stock_test.* TO 'laravel'@'%';"
+docker compose run --rm app php artisan sauvegarde:creer
+docker compose run --rm -e SAUVEGARDE_TEST_DB_DATABASE=gestion_stock_test app php artisan sauvegarde:verifier
+```
+
+**A valider avec l'equipe technique pour la production** :
+- `mysqldump` est-il disponible pour PHP sur le serveur ? Le bouton *Lancer une sauvegarde* l'indique tout de suite.
+- Comment activer le planificateur (`schedule:run`) ?
+- Quel emplacement externe utiliser (copie hors du serveur) ?
+- Quelle base de test utiliser pour `sauvegarde:verifier` ?
+- L'envoi de mails est-il configure (`MAIL_*`) ?
+
 ## Structure du modele de donnees
 
 - `sites` / `emplacements` : hierarchie Site > Emplacement.
 - `materiels` : un enregistrement par equipement physique (reference, type, marque, modele, numero de serie, condition_stock, statut, emplacement, utilisateur attribue, colonne `version` pour la detection de modifications concurrentes).
 - `mouvements` : historique immuable de tous les changements (deplacement, attribution, retour en stock, mise en reparation).
 - `imports` : journal des imports Excel/CSV (mode strict : tout ou rien).
+- `sauvegardes` : journal des sauvegardes de la base (fichier, statut, taille, empreinte, effectifs au moment du dump).
 - `users` : comptes applicatifs avec role (`administrateur`, `gestionnaire_stock`, `technicien`, `consultation`, `auditeur`).

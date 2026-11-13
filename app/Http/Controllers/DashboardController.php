@@ -6,6 +6,8 @@ use App\Models\Import;
 use App\Models\Materiel;
 use App\Models\Mouvement;
 use App\Models\Parametre;
+use App\Models\Sauvegarde;
+use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
@@ -18,7 +20,7 @@ class DashboardController extends Controller
     /** Nombre de jours au-delà duquel une réparation est signalée comme longue. */
     public const DELAI_REPARATION_LONGUE = 14;
 
-    public function index(): View
+    public function index(Request $request): View
     {
         // Une requête GROUP BY par critère : ['disponible' => 326, 'attribue' => 642, ...].
         $parStatut = Materiel::groupBy('statut')->selectRaw('statut, COUNT(*) as nombre')->pluck('nombre', 'statut');
@@ -56,6 +58,10 @@ class DashboardController extends Controller
             'seuilStockFaible' => $seuil = Parametre::seuilStockFaible(),
             'stocksFaibles' => $this->stocksFaibles($seuil),
             'delaiReparationLongue' => self::DELAI_REPARATION_LONGUE,
+            // Algorithme §16 : alerte visible par les administrateurs si la dernière sauvegarde a échoué.
+            'sauvegardeEchouee' => $request->user()->estAdministrateur()
+                ? Sauvegarde::latest()->latest('id')->first()?->estReussie() === false
+                : false,
         ]);
     }
 
